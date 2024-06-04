@@ -1,0 +1,21 @@
+[project]
+name = "decision-tree-from-scratch"
+version = "0.0.1"
+authors = [
+  { name="Rafael Ayllón Gavilán", email="rafaaylloningeniero@gmail.com" },
+]
+description = "From scratch implementation of a decision tree classifier that perform the same as sklearn implementation"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+]
+
+[project.urls]
+Homepage = "https://github.com/RafaAyGar/decision-tree-from-scratch"
+Issues = "https://github.com/RafaAyGar/decision-tree-from-scratch/issues"
