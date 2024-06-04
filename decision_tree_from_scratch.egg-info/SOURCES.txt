@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+decision_tree_from_scratch/decisionTree_aux.py
+decision_tree_from_scratch/decisionTree_model.py
+decision_tree_from_scratch/decisionTree_splitCriteria.py
+decision_tree_from_scratch.egg-info/PKG-INFO
+decision_tree_from_scratch.egg-info/SOURCES.txt
+decision_tree_from_scratch.egg-info/dependency_links.txt
+decision_tree_from_scratch.egg-info/requires.txt
+decision_tree_from_scratch.egg-info/top_level.txt

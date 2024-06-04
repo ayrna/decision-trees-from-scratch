@@ -1,5 +1,5 @@
 import numpy as np
-from decisionTree_aux import split
+from decision_tree_from_scratch.decisionTree_aux import split
 
 
 class Node:
@@ -52,7 +52,6 @@ class Node:
         self.node_y_count = np.zeros(len(self._root_y_classes))
         for i, c in enumerate(self._root_y_classes):
             self.node_y_count[i] = len(np.where(y == c)[0])
-        # self.node_y_count = self.node_y_count / self._father_y_count
         self.node_y = y
         ##
 
@@ -86,11 +85,6 @@ class Node:
         X_right = X[~left_indices]
         y_right = y[~left_indices]
         #
-        # if len(data_left) == 0 or len(data_right) == 0:
-        #     self.leaf = True
-        #     return
-        #
-        father_y_classes_and_count = np.unique(y, return_counts=True)
         self.left = Node(
             depth=self.depth + 1,
             max_depth=self.max_depth,
@@ -164,8 +158,6 @@ class Node:
                 self.feature,
                 "<=",
                 round(self.threshold, 3),
-                # ":",
-                # round(self.criterion_val, 2),
             )
         elif side == "right":
             print(
@@ -174,8 +166,6 @@ class Node:
                 self.feature,
                 ">",
                 round(self.threshold, 3),
-                # ":",
-                # round(self.criterion_val, 2),
             )
 
     def print_tree(self, side="left"):

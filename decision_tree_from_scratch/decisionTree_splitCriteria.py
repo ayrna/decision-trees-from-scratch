@@ -12,21 +12,14 @@ def efficient_gini_index(target, left_target, right_target):
     if total_samples == 0:
         return 0
 
-    # Calculate class probabilities for left node
     _, left_counts = np.unique(left_target, return_counts=True)
     left_probs = left_counts / left_samples
-
-    # Calculate class probabilities for right node
     _, right_counts = np.unique(right_target, return_counts=True)
     right_probs = right_counts / right_samples
 
-    # Calculate Gini impurity for left node
     left_gini = 1 - np.sum(left_probs**2)
-
-    # Calculate Gini impurity for right node
     right_gini = 1 - np.sum(right_probs**2)
 
-    # Weighted sum of Gini impurities
     weighted_gini = (left_samples / total_samples) * left_gini + (
         right_samples / total_samples
     ) * right_gini
@@ -73,16 +66,13 @@ def information_gain(y_father, y_left, y_right):
     n_left = len(y_left)
     n_right = len(y_right)
 
-    # Calculate entropies
     entropy_left = _entropy_single(y_left)
     entropy_right = _entropy_single(y_right)
 
-    # Calculate weighted average entropy
     split_entropy = ((n_left / n_father) * entropy_left) + (
         (n_right / n_father) * entropy_right
     )
 
-    # return entropy_father - split_entropy
     return -split_entropy
 
 
