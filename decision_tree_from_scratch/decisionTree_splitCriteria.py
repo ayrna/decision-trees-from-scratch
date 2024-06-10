@@ -1,29 +1,122 @@
+import math
+
 import numpy as np
+
+### Gini-Simpson. (Raffaella Piccarreta. 2007.)
+##
+#
+
+
+def gini_simpson_extended(target, left_target, right_target):
+    labels, counts = np.unique(target, return_counts=True)
+    labels_L, counts_L = np.unique(left_target, return_counts=True)
+    labels_R, counts_R = np.unique(right_target, return_counts=True)
+
+    f = {l: c for l, c in zip(labels, counts)}
+    f_L = {l: c for l, c in zip(labels_L, counts_L)}
+    f_R = {l: c for l, c in zip(labels_R, counts_R)}
+
+    p = {}
+    p_L = {}
+    p_R = {}
+    for l, c in f.items():
+        p[l] = c / len(target)
+        p_L[l] = f_L[l] / len(left_target) if l in labels_L else 0
+        p_R[l] = f_R[l] / len(right_target) if l in labels_R else 0
+
+    PL = len(left_target) / len(target)
+    PR = len(right_target) / len(target)
+
+    gini = 0
+    for l in labels:
+        gini += np.power(p_L[l] - p_R[l], 2)
+
+    return PL * PR * gini
+
+
+def gini_simpson(target, left_target, right_target):
+    p_L = len(left_target) / len(target)
+    p_R = len(right_target) / len(target)
+
+    impurity_F = _impurity(target)
+    impurity_L = _impurity(left_target)
+    impurity_R = _impurity(right_target)
+
+    return impurity_F - (p_L * impurity_L) - (p_R * impurity_R)
+
+
+def _impurity(target):
+    _, counts = np.unique(target, return_counts=True)
+    probs = counts / len(target)
+    impurity = 1 - np.sum(probs**2)
+    return impurity
+
+
+#
+##
+### ·······································································
+
+
+### Ordinal Gini-Simpson. (Raffaella Piccarreta. 2007.)
+##
+#
+def ordinal_gini_simpson_extended(target, left_target, right_target):
+    labels, counts = np.unique(target, return_counts=True)
+    labels_L, counts_L = np.unique(left_target, return_counts=True)
+    labels_R, counts_R = np.unique(right_target, return_counts=True)
+
+    f = {l: c for l, c in zip(labels, counts)}
+    f_L = {l: c for l, c in zip(labels_L, counts_L)}
+    f_R = {l: c for l, c in zip(labels_R, counts_R)}
+
+    for l in f:
+        if l not in f_L:
+            f_L[l] = 0
+        if l not in f_R:
+            f_R[l] = 0
+
+    p_L = np.cumsum([*f_L.values()]) / len(left_target)
+    p_R = np.cumsum([*f_R.values()]) / len(right_target)
+
+    PL = len(left_target) / len(target)
+    PR = len(right_target) / len(target)
+
+    gini = 0
+    for p_L_i, p_R_i in zip(p_L, p_R):
+        gini += np.power(p_L_i - p_R_i, 2)
+
+    return PL * PR * gini
+
+
+#
+##
+### ·······································································
 
 
 ### Weighted IG. (Fen Xia, Wensheng Zhang, and Jue Wang. 2006)
 ##
 #
 def _weighted_entropy_single(y, weights):
-    # TODO
-    _, class_counts = np.unique(y, return_counts=True)
+    uni, class_counts = np.unique(y, return_counts=True)
     class_probabilities = class_counts / len(y)
-    entropy = -np.sum(class_probabilities * np.log2(class_probabilities))
-    return entropy  # / len(class_probabilities)  # / n_classes
+    w = np.array([weights[u] for u in uni])
+    entropy = -np.sum(w * class_probabilities * np.log2(class_probabilities))
+    return entropy
 
 
 def weighted_information_gain(y_father, y_left, y_right):
 
     mode_class = np.argmax(np.bincount(y_father))
-
     uni = np.unique(y_father)
-    den = 0
-    for u in uni:
-        den += abs(u - mode_class)
-
-    weights = dict()
-    for u in uni:
-        weights[u] = abs(u - mode_class) / den
+    weight_denominator = np.sum(np.abs(uni - mode_class))
+    weights = {
+        u: (
+            np.power(abs(u - mode_class), 2) / np.power(weight_denominator, 2)
+            if not math.isclose(weight_denominator, 0.0)
+            else 0
+        )
+        for u in uni
+    }
 
     n_father = len(y_father)
     n_left = len(y_left)
@@ -40,7 +133,8 @@ def weighted_information_gain(y_father, y_left, y_right):
 
 
 #
-# ·······································································
+##
+### ·······································································
 
 
 ### Ranking Impurity. (Fen Xia, Wensheng Zhang, and Jue Wang. 2006)
@@ -72,16 +166,13 @@ def ranking_impurity(target, left_target, right_target):
 ##
 #
 def twoing_criterion(parent_classes, left_classes, right_classes):
-    # Calculate the number of samples in each node
     n_parent = len(parent_classes)
     n_left = len(left_classes)
     n_right = len(right_classes)
 
-    # Calculate the proportions of samples in each node
     p_L = n_left / n_parent
     p_R = n_right / n_parent
 
-    # Calculate the class distributions in each node
     def class_distribution(classes):
         distribution = {}
         for c in classes:
@@ -97,7 +188,6 @@ def twoing_criterion(parent_classes, left_classes, right_classes):
     left_dist = class_distribution(left_classes)
     right_dist = class_distribution(right_classes)
 
-    # Calculate the twoing criterion
     twoing_value = 0
     for c in parent_dist:
         pi_t_C1_L = left_dist.get(c, 0)
