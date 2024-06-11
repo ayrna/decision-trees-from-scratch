@@ -143,7 +143,7 @@ def weighted_information_gain(y_father, y_left, y_right):
 def ranking_impurity_single(target):
     labels, counts = np.unique(target, return_counts=True)
     ri = 0
-    for j in len(labels):
+    for j in range(len(labels)):
         for i in range(j):
             ri += (labels[j] - labels[i]) * counts[i] * counts[j]
     return ri
