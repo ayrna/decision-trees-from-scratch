@@ -2,164 +2,186 @@ import math
 
 import numpy as np
 
+
 ### Gini-Simpson. (Raffaella Piccarreta. 2007.)
 ##
 #
+class GiniSimpson:
+    def __init__(self):
+        pass
 
+    def compute(self, target, left_target, right_target):
+        labels, counts = np.unique(target, return_counts=True)
+        labels_L, counts_L = np.unique(left_target, return_counts=True)
+        labels_R, counts_R = np.unique(right_target, return_counts=True)
 
-def gini_simpson_extended(target, left_target, right_target):
-    labels, counts = np.unique(target, return_counts=True)
-    labels_L, counts_L = np.unique(left_target, return_counts=True)
-    labels_R, counts_R = np.unique(right_target, return_counts=True)
+        f = {l: c for l, c in zip(labels, counts)}
+        f_L = {l: c for l, c in zip(labels_L, counts_L)}
+        f_R = {l: c for l, c in zip(labels_R, counts_R)}
 
-    f = {l: c for l, c in zip(labels, counts)}
-    f_L = {l: c for l, c in zip(labels_L, counts_L)}
-    f_R = {l: c for l, c in zip(labels_R, counts_R)}
+        p = {}
+        p_L = {}
+        p_R = {}
+        for l, c in f.items():
+            p[l] = c / len(target)
+            p_L[l] = f_L[l] / len(left_target) if l in labels_L else 0
+            p_R[l] = f_R[l] / len(right_target) if l in labels_R else 0
 
-    p = {}
-    p_L = {}
-    p_R = {}
-    for l, c in f.items():
-        p[l] = c / len(target)
-        p_L[l] = f_L[l] / len(left_target) if l in labels_L else 0
-        p_R[l] = f_R[l] / len(right_target) if l in labels_R else 0
+        PL = len(left_target) / len(target)
+        PR = len(right_target) / len(target)
 
-    PL = len(left_target) / len(target)
-    PR = len(right_target) / len(target)
+        gini = 0
+        for l in labels:
+            gini += np.power(p_L[l] - p_R[l], 2)
 
-    gini = 0
-    for l in labels:
-        gini += np.power(p_L[l] - p_R[l], 2)
+        return PL * PR * gini
 
-    return PL * PR * gini
+    # def gini_simpson(target, left_target, right_target):
+    #     p_L = len(left_target) / len(target)
+    #     p_R = len(right_target) / len(target)
 
+    #     impurity_F = _impurity(target)
+    #     impurity_L = _impurity(left_target)
+    #     impurity_R = _impurity(right_target)
 
-def gini_simpson(target, left_target, right_target):
-    p_L = len(left_target) / len(target)
-    p_R = len(right_target) / len(target)
+    #     return impurity_F - (p_L * impurity_L) - (p_R * impurity_R)
 
-    impurity_F = _impurity(target)
-    impurity_L = _impurity(left_target)
-    impurity_R = _impurity(right_target)
-
-    return impurity_F - (p_L * impurity_L) - (p_R * impurity_R)
-
-
-def _impurity(target):
-    _, counts = np.unique(target, return_counts=True)
-    probs = counts / len(target)
-    impurity = 1 - np.sum(probs**2)
-    return impurity
-
-
-#
-##
-### ·······································································
+    # def _impurity(target):
+    #     _, counts = np.unique(target, return_counts=True)
+    #     probs = counts / len(target)
+    #     impurity = 1 - np.sum(probs**2)
+    #     return impurity
 
 
 ### Ordinal Gini-Simpson. (Raffaella Piccarreta. 2007.)
 ##
 #
-def ordinal_gini_simpson_extended(target, left_target, right_target):
-    labels, counts = np.unique(target, return_counts=True)
-    labels_L, counts_L = np.unique(left_target, return_counts=True)
-    labels_R, counts_R = np.unique(right_target, return_counts=True)
+class OrdinalGiniSimpson:
+    def __init__(self):
+        pass
 
-    f = {l: c for l, c in zip(labels, counts)}
-    f_L = {l: c for l, c in zip(labels_L, counts_L)}
-    f_R = {l: c for l, c in zip(labels_R, counts_R)}
+    def compute(self, target, left_target, right_target):
+        labels, counts = np.unique(target, return_counts=True)
+        labels_L, counts_L = np.unique(left_target, return_counts=True)
+        labels_R, counts_R = np.unique(right_target, return_counts=True)
 
-    for l in f:
-        if l not in f_L:
-            f_L[l] = 0
-        if l not in f_R:
-            f_R[l] = 0
+        f = {l: c for l, c in zip(labels, counts)}
+        f_L = {l: c for l, c in zip(labels_L, counts_L)}
+        f_R = {l: c for l, c in zip(labels_R, counts_R)}
 
-    p_L = np.cumsum([*f_L.values()]) / len(left_target)
-    p_R = np.cumsum([*f_R.values()]) / len(right_target)
+        for l in f:
+            if l not in f_L:
+                f_L[l] = 0
+            if l not in f_R:
+                f_R[l] = 0
 
-    PL = len(left_target) / len(target)
-    PR = len(right_target) / len(target)
+        p_L = np.cumsum([*f_L.values()]) / len(left_target)
+        p_R = np.cumsum([*f_R.values()]) / len(right_target)
 
-    gini = 0
-    for p_L_i, p_R_i in zip(p_L, p_R):
-        gini += np.power(p_L_i - p_R_i, 2)
+        PL = len(left_target) / len(target)
+        PR = len(right_target) / len(target)
 
-    return PL * PR * gini
+        gini = 0
+        for p_L_i, p_R_i in zip(p_L, p_R):
+            gini += np.power(p_L_i - p_R_i, 2)
 
-
-#
-##
-### ·······································································
+        return PL * PR * gini
 
 
 ### Weighted IG. (Fen Xia, Wensheng Zhang, and Jue Wang. 2006)
 ##
 #
-def _weighted_entropy_single(y, weights):
-    uni, class_counts = np.unique(y, return_counts=True)
-    class_probabilities = class_counts / len(y)
-    w = np.array([weights[u] for u in uni])
-    entropy = -np.sum(w * class_probabilities * np.log2(class_probabilities))
-    return entropy
+class WeightedIG:
+    def __init__(self, power=2):
+        self.power = power
 
+    def _weighted_entropy_single(self, y, weights):
+        uni, class_counts = np.unique(y, return_counts=True)
+        class_probabilities = class_counts / len(y)
+        w = np.array([weights[u] for u in uni])
+        entropy = -np.sum(w * class_probabilities * np.log2(class_probabilities))
+        return entropy
 
-def weighted_information_gain(y_father, y_left, y_right):
+    def compute(self, target, left_target, right_target):
 
-    mode_class = np.argmax(np.bincount(y_father))
-    uni = np.unique(y_father)
-    weight_denominator = np.sum(np.abs(uni - mode_class))
-    weights = {
-        u: (
-            np.power(abs(u - mode_class), 2) / np.power(weight_denominator, 2)
-            if not math.isclose(weight_denominator, 0.0)
-            else 0
+        ## debug
+        print("Using power:", self.power)
+
+        mode_class = np.argmax(np.bincount(target))
+        uni = np.unique(target)
+        weight_denominator = np.sum(np.abs(uni - mode_class))
+        weights = {
+            u: (
+                np.power(abs(u - mode_class), self.power)
+                / np.power(weight_denominator, self.power)
+                if not math.isclose(weight_denominator, 0.0)
+                else 0
+            )
+            for u in uni
+        }
+
+        n_father = len(target)
+        n_left = len(left_target)
+        n_right = len(right_target)
+
+        entropy_left = self._weighted_entropy_single(left_target, weights=weights)
+        entropy_right = self._weighted_entropy_single(right_target, weights=weights)
+
+        split_entropy = ((n_left / n_father) * entropy_left) + (
+            (n_right / n_father) * entropy_right
         )
-        for u in uni
-    }
 
-    n_father = len(y_father)
-    n_left = len(y_left)
-    n_right = len(y_right)
-
-    entropy_left = _weighted_entropy_single(y_left, weights=weights)
-    entropy_right = _weighted_entropy_single(y_right, weights=weights)
-
-    split_entropy = ((n_left / n_father) * entropy_left) + (
-        (n_right / n_father) * entropy_right
-    )
-
-    return -split_entropy
-
-
-#
-##
-### ·······································································
+        return -split_entropy
 
 
 ### Ranking Impurity. (Fen Xia, Wensheng Zhang, and Jue Wang. 2006)
 ##
 #
-def ranking_impurity_single(target):
-    labels, counts = np.unique(target, return_counts=True)
-    ri = 0
-    for j in range(len(labels)):
-        for i in range(j):
-            ri += (labels[j] - labels[i]) * counts[i] * counts[j]
-    return ri
+class RankingImpurity:
+    def __init__(self):
+        pass
+
+    def _ranking_impurity_single(self, target):
+        labels, counts = np.unique(target, return_counts=True)
+        ri = 0
+        for j in range(len(labels)):
+            for i in range(j):
+                ri += (labels[j] - labels[i]) * counts[i] * counts[j]
+        return ri
+
+    def compute(self, target, left_target, right_target):
+        ri_father = self._ranking_impurity_single(target)
+        ri_left = self._ranking_impurity_single(left_target)
+        ri_right = self._ranking_impurity_single(right_target)
+        return ri_father - (ri_left + ri_right)
 
 
+### Information Gain.
+##
 #
-#
-def ranking_impurity(target, left_target, right_target):
-    ri_father = ranking_impurity_single(target)
-    ri_left = ranking_impurity_single(left_target)
-    ri_right = ranking_impurity_single(right_target)
-    return ri_father - (ri_left + ri_right)
+class InformationGain:
+    def __init__(self):
+        pass
 
+    def _entropy_single(self, y):
+        _, class_counts = np.unique(y, return_counts=True)
+        class_probabilities = class_counts / len(y)
+        entropy = -np.sum(class_probabilities * np.log2(class_probabilities))
+        return entropy  # / len(class_probabilities)  # / n_classes
 
-#
-# ·······································································
+    def compute(self, target, left_target, right_target):
+        n_father = len(target)
+        n_left = len(left_target)
+        n_right = len(right_target)
+
+        entropy_left = self._entropy_single(left_target)
+        entropy_right = self._entropy_single(right_target)
+
+        split_entropy = ((n_left / n_father) * entropy_left) + (
+            (n_right / n_father) * entropy_right
+        )
+
+        return -split_entropy
 
 
 ### Twoing Criterion. (Raffaella Piccarreta. 2007.)
@@ -199,9 +221,8 @@ def twoing_criterion(parent_classes, left_classes, right_classes):
     return twoing_value
 
 
-#
-# ·······································································
-
+######################################################################
+######################################################################
 
 # def twoing_criterion(target, left_target, right_target):
 #     n_parent = len(target)
@@ -278,33 +299,3 @@ def gini(target, left_target, right_target):
     GI += (n_right / n) * (1 - right_counts)
 
     return GI
-
-
-# ENTROPY #############################################################################
-#######################################################################################
-
-
-def _entropy_single(y):
-    _, class_counts = np.unique(y, return_counts=True)
-    class_probabilities = class_counts / len(y)
-    entropy = -np.sum(class_probabilities * np.log2(class_probabilities))
-    return entropy  # / len(class_probabilities)  # / n_classes
-
-
-def information_gain(y_father, y_left, y_right):
-    n_father = len(y_father)
-    n_left = len(y_left)
-    n_right = len(y_right)
-
-    entropy_left = _entropy_single(y_left)
-    entropy_right = _entropy_single(y_right)
-
-    split_entropy = ((n_left / n_father) * entropy_left) + (
-        (n_right / n_father) * entropy_right
-    )
-
-    return -split_entropy
-
-
-###################################3
-###################################3

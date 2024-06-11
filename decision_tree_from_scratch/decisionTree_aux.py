@@ -30,7 +30,7 @@ def evaluate_feature(feature, target, criterion, random_state):
         right_target = target[~left_index]
         if (len(left_target) == 0) or (len(right_target) == 0):
             continue
-        criterion_value = criterion(target, left_target, right_target)
+        criterion_value = criterion.compute(target, left_target, right_target)
 
         # results[i] = criterion_value
         if best_criterion_value is None:
