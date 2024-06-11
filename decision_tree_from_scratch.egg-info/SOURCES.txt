@@ -1,7 +1,8 @@
 README.md
 pyproject.toml
+decision_tree_from_scratch/decisionTree.py
 decision_tree_from_scratch/decisionTree_aux.py
-decision_tree_from_scratch/decisionTree_model.py
+decision_tree_from_scratch/decisionTree_node.py
 decision_tree_from_scratch/decisionTree_splitCriteria.py
 decision_tree_from_scratch.egg-info/PKG-INFO
 decision_tree_from_scratch.egg-info/SOURCES.txt

@@ -19,7 +19,7 @@ class DTC(ClassifierMixin, BaseEstimator):
         self.random_state = random_state
 
     def fit(self, X, y):
-        X, y = check_X_y(X, y)
+        # X, y = check_X_y(X, y)
         self.classes_ = unique_labels(y)
 
         if self.criterion == "information_gain":
@@ -49,6 +49,6 @@ class DTC(ClassifierMixin, BaseEstimator):
 
     def predict(self, X):
         check_is_fitted(self)
-        X = check_array(X)
+        # X = check_array(X)
 
         return self._tree.predict(X)
