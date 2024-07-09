@@ -10,14 +10,12 @@ class DTC(ClassifierMixin, BaseEstimator):
     def __init__(
         self,
         criterion="gini",
-        depth=0,
         max_depth=5,
         weights_exponent=None,
         handle_non_aranged_classes=False,
         random_state=None,
     ):
         self.criterion = criterion
-        self.depth = depth
         self.max_depth = max_depth
         self.weights_exponent = weights_exponent
         self.handle_non_aranged_classes = handle_non_aranged_classes
@@ -59,6 +57,10 @@ class DTC(ClassifierMixin, BaseEstimator):
             self._criterion = criterias.WeightedImpurity(n_classes=max(self.classes_) + 1, power=self.weights_exponent)
         elif self.criterion == "nysia_impurity":
             self._criterion = criterias.NysiaImpurity()
+        elif self.criterion == "twoing_criterion":
+            self._criterion = criterias.TwoingCriterion()
+        elif self.criterion == "ordinal_twoing_criterion":
+            self._criterion = criterias.OrdinalTwoingCriterion()
         else:
             raise ValueError(f"Criterion {self.criterion} not recognized.")
 
@@ -77,3 +79,9 @@ class DTC(ClassifierMixin, BaseEstimator):
         # X = check_array(X)
 
         return self._tree.predict(X)
+    
+    def predict_proba(self, X):
+        check_is_fitted(self)
+        # X = check_array(X)
+
+        return self._tree.predict_proba(X)

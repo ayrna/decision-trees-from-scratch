@@ -121,12 +121,29 @@ class Node:
             return self.left.predict_entry(entry)
         else:
             return self.right.predict_entry(entry)
+        
+    def predict_entry_proba(self, entry):
+        if self.leaf:
+            # What percentage of initial classes fall in this leaf
+            # return self._root_y_classes[np.argmax(self.node_y_count / self._root_y_count)]
+            return self.node_y_count / len(self.node_y)
+
+        if entry[self.feature] <= self.threshold:
+            return self.left.predict_entry_proba(entry)
+        else:
+            return self.right.predict_entry_proba(entry)
 
     #
     def predict(self, data):
         preds = []
         for i, entry in data.iterrows():
             preds.append(self.predict_entry(entry))
+        return preds
+    
+    def predict_proba(self, data):
+        preds = []
+        for i, entry in data.iterrows():
+            preds.append(self.predict_entry_proba(entry))
         return preds
 
     ##

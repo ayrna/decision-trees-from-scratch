@@ -1,4 +1,5 @@
 import math
+from itertools import chain, combinations
 
 import numpy as np
 
@@ -75,8 +76,8 @@ class OrdinalGiniSimpson:
             if l not in f_R:
                 f_R[l] = 0
 
-        p_L = np.cumsum([*f_L.values()]) / len(left_target)
-        p_R = np.cumsum([*f_R.values()]) / len(right_target)
+        p_L = np.cumsum(np.array(sorted(f_L.items()))[:, 1] / len(left_target))
+        p_R = np.cumsum(np.array(sorted(f_R.items()))[:, 1] / len(right_target))
 
         PL = len(left_target) / len(target)
         PR = len(right_target) / len(target)
@@ -212,6 +213,7 @@ def make_cost_matrix(num_ratings, power):
     )
     return np.float32(cost_matrix)
 
+
 class WeightedImpurity:
     def __init__(self, n_classes, power):
         self.n_classes = n_classes
@@ -231,7 +233,7 @@ class WeightedImpurity:
         ri_left = self._weighted_impurity_single(left_target)
         ri_right = self._weighted_impurity_single(right_target)
         return ri_father - (ri_left + ri_right)
-    
+
 
 ### Nysia Weighted Impurity (Nysia I. George, Tzu-Pin Lu, and Ching-Wei Chang, 2016).
 ##
@@ -245,7 +247,7 @@ class NysiaImpurity:
         ri = 0
         for j in range(len(labels)):
             for i in range(j):
-                ri += ((len(target) - counts[i])/counts[j]) * abs(labels[i] - labels[j])
+                ri += ((len(target) - counts[i]) / counts[j]) * abs(labels[i] - labels[j])
         return ri
 
     def compute(self, target, left_target, right_target):
@@ -287,30 +289,93 @@ class InformationGain:
 ##
 #
 class TwoingCriterion:
-    def __init__():
+    def __init__(self):
         pass
 
-    
-    def individual_twoing(target):
-        classes, counts = np.unique(target, return_counts=True)
-        relative_frequency = counts / len(target)
+    def generate_subsets(self, classes):
+        return list(
+            chain.from_iterable(combinations(classes, r) for r in range(len(classes) + 1))
+        )
 
-        def generar_subconjuntos(conjunto):
-            """
-            Genera todos los subconjuntos posibles de una lista de valores únicos.
-            """
-            from itertools import chain, combinations
-            return list(chain.from_iterable(combinations(conjunto, r) for r in range(len(conjunto)+1)))
-    
-        # Ejemplo de uso:
-        conjunto = [1, 2, 3, 4]
-        resultado = generar_subconjuntos(conjunto)
-        print("Todos los subconjuntos de", conjunto, "son:")
-        for subset in resultado:
-            print(subset)
+    def _indiv_twoing_impurity(self, t, subset):
+        classes, counts = np.unique(t, return_counts=True)
+        class_frequency = {c: cou / len(t) for c, cou in zip(classes, counts)}
+
+        pi_c1 = sum([class_frequency[c] for c in classes if c in subset])
+        pi_c1_complement = sum([class_frequency[c] for c in classes if c not in subset])
+
+        return 2 * pi_c1 * pi_c1_complement
 
     def compute(self, target, left_target, right_target):
+        classes = np.unique(target)
+        pL = len(left_target) / len(target)
+        pR = len(right_target) / len(target)
+
+        subsets = self.generate_subsets(classes)
+        unique_subsets = []
+        for subset in subsets:
+            subset_C = tuple([c for c in classes if c not in subset])
+            if (subset not in unique_subsets) and (subset_C not in unique_subsets):
+                unique_subsets.append(list(subset))
+
+        highest_impurity_decrease = 0
+        for subset in unique_subsets:
+            impurity = self._indiv_twoing_impurity(target, subset)
+            impurity_L = self._indiv_twoing_impurity(left_target, subset)
+            impurity_R = self._indiv_twoing_impurity(right_target, subset)
+
+            impurity_decrease = impurity - (pL * impurity_L) - (pR * impurity_R)
+            if impurity_decrease > highest_impurity_decrease:
+                highest_impurity_decrease = impurity_decrease
+
+        return highest_impurity_decrease
+
+
+### Ordinal Twoing Criterion. (Raffaella Piccarreta. 2007.)
+##
+#
+class OrdinalTwoingCriterion:
+    def __init__(self):
         pass
+
+    def generate_ordered_subsets(self, classes):
+        subsets = []
+        for i in range(len(classes)):
+            subsets.append(tuple(classes[:i]))
+        return subsets
+
+    def _indiv_twoing_impurity(self, t, subset):
+        classes, counts = np.unique(t, return_counts=True)
+        class_frequency = {c: cou / len(t) for c, cou in zip(classes, counts)}
+
+        pi_c1 = sum([class_frequency[c] for c in classes if c in subset])
+        pi_c1_complement = sum([class_frequency[c] for c in classes if c not in subset])
+
+        return 2 * pi_c1 * pi_c1_complement
+
+    def compute(self, target, left_target, right_target):
+        classes = np.unique(target)
+        pL = len(left_target) / len(target)
+        pR = len(right_target) / len(target)
+
+        subsets = self.generate_ordered_subsets(classes)
+        unique_subsets = []
+        for subset in subsets:
+            subset_C = tuple([c for c in classes if c not in subset])
+            if (subset not in unique_subsets) and (subset_C not in unique_subsets):
+                unique_subsets.append(list(subset))
+
+        highest_impurity_decrease = 0
+        for subset in subsets:
+            impurity = self._indiv_twoing_impurity(target, subset)
+            impurity_L = self._indiv_twoing_impurity(left_target, subset)
+            impurity_R = self._indiv_twoing_impurity(right_target, subset)
+
+            impurity_decrease = impurity - (pL * impurity_L) - (pR * impurity_R)
+            if impurity_decrease > highest_impurity_decrease:
+                highest_impurity_decrease = impurity_decrease
+
+        return highest_impurity_decrease
 
 
 # ### Twoing Criterion. (Raffaella Piccarreta. 2007.)
