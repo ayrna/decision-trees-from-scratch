@@ -196,4 +196,10 @@ class Node:
             self.right.print_node_tree()
         return
 
+    def get_tree_depth(self):
+        if self.leaf:
+            return self.depth
+        else:
+            return max(self.left.get_tree_depth(), self.right.get_tree_depth())
+
     ##

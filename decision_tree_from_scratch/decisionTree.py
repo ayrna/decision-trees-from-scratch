@@ -94,3 +94,6 @@ class DTC(ClassifierMixin, BaseEstimator):
 
     def print_tree(self):
         self._tree.print_node_tree()
+
+    def get_tree_depth(self):
+        return self._tree.get_tree_depth()

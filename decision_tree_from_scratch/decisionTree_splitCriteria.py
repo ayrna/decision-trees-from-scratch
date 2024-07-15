@@ -2,6 +2,35 @@ import math
 import numpy as np
 
 
+### Information Gain.
+##
+#
+class InformationGain:
+    def __init__(self):
+        pass
+
+    def _entropy_single(self, y):
+        _, class_counts = np.unique(y, return_counts=True)
+        class_probabilities = class_counts / len(y)
+        entropy = -np.sum(class_probabilities * np.log2(class_probabilities))
+        return entropy  # / len(class_probabilities)  # / n_classes
+
+    def compute(self, target, left_target, right_target):
+        n_father = len(target)
+        n_left = len(left_target)
+        n_right = len(right_target)
+
+        entropy_father = self._entropy_single(target)
+        entropy_left = self._entropy_single(left_target)
+        entropy_right = self._entropy_single(right_target)
+
+        split_entropy = ((n_left / n_father) * entropy_left) + (
+            (n_right / n_father) * entropy_right
+        )
+
+        return entropy_father - split_entropy
+
+
 ### Gini-Simpson. (Raffaella Piccarreta. 2007.)
 ##
 #
@@ -210,35 +239,6 @@ class WeightedImpurity:
 #         ri_left = self._weighted_impurity_single(left_target)
 #         ri_right = self._weighted_impurity_single(right_target)
 #         return ri_father - (ri_left + ri_right)
-
-
-# ### Information Gain.
-# ##
-# #
-# class InformationGain:
-#     def __init__(self):
-#         pass
-
-#     def _entropy_single(self, y):
-#         _, class_counts = np.unique(y, return_counts=True)
-#         class_probabilities = class_counts / len(y)
-#         entropy = -np.sum(class_probabilities * np.log2(class_probabilities))
-#         return entropy  # / len(class_probabilities)  # / n_classes
-
-#     def compute(self, target, left_target, right_target):
-#         n_father = len(target)
-#         n_left = len(left_target)
-#         n_right = len(right_target)
-
-#         entropy_father = self._entropy_single(target)
-#         entropy_left = self._entropy_single(left_target)
-#         entropy_right = self._entropy_single(right_target)
-
-#         split_entropy = ((n_left / n_father) * entropy_left) + (
-#             (n_right / n_father) * entropy_right
-#         )
-
-#         return entropy_father - split_entropy
 
 
 # ### Twoing Criterion. (Raffaella Piccarreta. 2007.)
