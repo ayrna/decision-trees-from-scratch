@@ -37,12 +37,16 @@ class DTC(ClassifierMixin, BaseEstimator):
 
         if not np.array_equal(self.classes_, np.arange(max(self.classes_) + 1)):
             if not self.handle_non_aranged_classes:
-                raise ValueError("Classes are not aranged from 0 to the highest class. Set handle_non_aranged_classes argument to True to avoid this error.")
+                raise ValueError(
+                    "Classes are not aranged from 0 to the highest class. Set handle_non_aranged_classes argument to True to avoid this error."
+                )
 
         if self.criterion == "information_gain":
             self._criterion = criterias.InformationGain()
         elif self.criterion == "gini":
             self._criterion = criterias.GiniSimpson()
+        elif self.criterion == "gini2":
+            self._criterion = criterias.GiniSimpson2()
         elif self.criterion == "ordinal_gini":
             self._criterion = criterias.OrdinalGiniSimpson()
         elif self.criterion == "weighted_information_gain":
@@ -54,7 +58,9 @@ class DTC(ClassifierMixin, BaseEstimator):
         elif self.criterion == "ranking_impurity":
             self._criterion = criterias.RankingImpurity()
         elif self.criterion == "weighted_impurity":
-            self._criterion = criterias.WeightedImpurity(n_classes=max(self.classes_) + 1, power=self.weights_exponent)
+            self._criterion = criterias.WeightedImpurity(
+                n_classes=max(self.classes_) + 1, power=self.weights_exponent
+            )
         elif self.criterion == "nysia_impurity":
             self._criterion = criterias.NysiaImpurity()
         elif self.criterion == "twoing_criterion":
@@ -79,9 +85,12 @@ class DTC(ClassifierMixin, BaseEstimator):
         # X = check_array(X)
 
         return self._tree.predict(X)
-    
+
     def predict_proba(self, X):
         check_is_fitted(self)
         # X = check_array(X)
 
         return self._tree.predict_proba(X)
+
+    def print_tree(self):
+        self._tree.print_node_tree()

@@ -121,7 +121,7 @@ class Node:
             return self.left.predict_entry(entry)
         else:
             return self.right.predict_entry(entry)
-        
+
     def predict_entry_proba(self, entry):
         if self.leaf:
             # What percentage of initial classes fall in this leaf
@@ -139,7 +139,7 @@ class Node:
         for i, entry in data.iterrows():
             preds.append(self.predict_entry(entry))
         return preds
-    
+
     def predict_proba(self, data):
         preds = []
         for i, entry in data.iterrows():
@@ -185,15 +185,15 @@ class Node:
                 round(self.threshold, 3),
             )
 
-    def print_tree(self, side="left"):
+    def print_node_tree(self):
         if self.leaf:
             print("\t" * self.depth, np.round(self.node_y_count, 2))
         else:
             self.print_node_info("left")
-            self.left.print_tree("left")
+            self.left.print_node_tree()
 
             self.print_node_info("right")
-            self.right.print_tree("right")
+            self.right.print_node_tree()
         return
 
     ##
