@@ -16,7 +16,7 @@ def moving_average(feature_values):
 #  and then test each one, returning the best in terms of the criterion
 #
 #
-def evaluate_feature(feature, target, criterion, random_state):
+def evaluate_feature(feature, target, root_target_probas, criterion, random_state):
     best_threshold = None
     best_criterion_value = None
 
@@ -30,7 +30,12 @@ def evaluate_feature(feature, target, criterion, random_state):
         right_target = target[~left_index]
         if (len(left_target) == 0) or (len(right_target) == 0):
             continue
-        criterion_value = criterion.compute(target, left_target, right_target)
+        criterion_value = criterion.compute(
+            target,
+            left_target,
+            right_target,
+            root_y_probas=root_target_probas,
+        )
 
         # results[i] = criterion_value
         if best_criterion_value is None:
@@ -48,13 +53,15 @@ def evaluate_feature(feature, target, criterion, random_state):
 #   2. Get the best feature, returning its name, values, threshold and criterion value obtained
 #
 #
-def split(X, y, criterion, random_state):
+def split(X, y, root_y_probas, criterion, random_state):
     best = None
 
     # 1.
     #
     for f_name, f_vals in X.items():
-        threshold, criterion_val = evaluate_feature(f_vals, y, criterion, random_state)
+        threshold, criterion_val = evaluate_feature(
+            f_vals, y, root_y_probas, criterion, random_state
+        )
 
         if threshold is None:
             continue

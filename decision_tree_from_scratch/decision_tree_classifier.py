@@ -1,6 +1,6 @@
 import numpy as np
-import decision_tree_from_scratch.decisionTree_splitCriteria as criterias
-from decision_tree_from_scratch.decisionTree_node import Node
+import decision_tree_from_scratch.tree_split_criteria as criterias
+from decision_tree_from_scratch.tree_node import Node
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.multiclass import unique_labels
 from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
@@ -30,6 +30,7 @@ class DTC(ClassifierMixin, BaseEstimator):
             and self.criterion != "weighted_information_gain"
             and self.criterion != "qwk_weighted_information_gain"
             and self.criterion != "weighted_impurity"
+            and self.criterion != "ordinal_bayesian_impurity"
         ):
             raise ValueError(
                 "weighted_ig_power can only be used with criterion='weighted_information_gain'"
@@ -59,6 +60,10 @@ class DTC(ClassifierMixin, BaseEstimator):
             self._criterion = criterias.RankingImpurity()
         elif self.criterion == "weighted_impurity":
             self._criterion = criterias.WeightedImpurity(
+                n_classes=max(self.classes_) + 1, power=self.weights_exponent
+            )
+        elif self.criterion == "ordinal_bayesian_impurity":
+            self._criterion = criterias.OrdinalBayesianImpurity(
                 n_classes=max(self.classes_) + 1, power=self.weights_exponent
             )
         elif self.criterion == "nysia_impurity":

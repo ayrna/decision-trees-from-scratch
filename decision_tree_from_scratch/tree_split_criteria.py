@@ -6,8 +6,6 @@ import numpy as np
 ##
 #
 class InformationGain:
-    def __init__(self):
-        pass
 
     def _entropy_single(self, y):
         _, class_counts = np.unique(y, return_counts=True)
@@ -15,14 +13,14 @@ class InformationGain:
         entropy = -np.sum(class_probabilities * np.log2(class_probabilities))
         return entropy  # / len(class_probabilities)  # / n_classes
 
-    def compute(self, target, left_target, right_target):
-        n_father = len(target)
-        n_left = len(left_target)
-        n_right = len(right_target)
+    def compute(self, y, left_y, right_y, **kwargs):
+        n_father = len(y)
+        n_left = len(left_y)
+        n_right = len(right_y)
 
-        entropy_father = self._entropy_single(target)
-        entropy_left = self._entropy_single(left_target)
-        entropy_right = self._entropy_single(right_target)
+        entropy_father = self._entropy_single(y)
+        entropy_left = self._entropy_single(left_y)
+        entropy_right = self._entropy_single(right_y)
 
         split_entropy = ((n_left / n_father) * entropy_left) + (
             (n_right / n_father) * entropy_right
@@ -35,13 +33,11 @@ class InformationGain:
 ##
 #
 class GiniSimpson:
-    def __init__(self):
-        pass
 
-    def compute(self, target, left_target, right_target):
-        labels, counts = np.unique(target, return_counts=True)
-        labels_L, counts_L = np.unique(left_target, return_counts=True)
-        labels_R, counts_R = np.unique(right_target, return_counts=True)
+    def compute(self, y, left_y, right_y, **kwargs):
+        labels, counts = np.unique(y, return_counts=True)
+        labels_L, counts_L = np.unique(left_y, return_counts=True)
+        labels_R, counts_R = np.unique(right_y, return_counts=True)
 
         f = {l: c for l, c in zip(labels, counts)}
         f_L = {l: c for l, c in zip(labels_L, counts_L)}
@@ -51,15 +47,15 @@ class GiniSimpson:
         gini_left = 0
         gini_right = 0
         for l, c in f.items():
-            gini_father += (c / len(target)) ** 2
-            gini_left += (f_L[l] / len(left_target)) ** 2 if l in labels_L else 0
-            gini_right += (f_R[l] / len(right_target)) ** 2 if l in labels_R else 0
+            gini_father += (c / len(y)) ** 2
+            gini_left += (f_L[l] / len(left_y)) ** 2 if l in labels_L else 0
+            gini_right += (f_R[l] / len(right_y)) ** 2 if l in labels_R else 0
         gini_father = 1 - gini_father
         gini_left = 1 - gini_left
         gini_right = 1 - gini_right
 
-        PL = len(left_target) / len(target)
-        PR = len(right_target) / len(target)
+        PL = len(left_y) / len(y)
+        PR = len(right_y) / len(y)
 
         return gini_father - (PL * gini_left) - (PR * gini_right)
 
@@ -68,13 +64,11 @@ class GiniSimpson:
 ##
 #
 class OrdinalGiniSimpson:
-    def __init__(self):
-        pass
 
-    def compute(self, target, left_target, right_target):
-        labels, counts = np.unique(target, return_counts=True)
-        labels_L, counts_L = np.unique(left_target, return_counts=True)
-        labels_R, counts_R = np.unique(right_target, return_counts=True)
+    def compute(self, y, left_y, right_y, **kwargs):
+        labels, counts = np.unique(y, return_counts=True)
+        labels_L, counts_L = np.unique(left_y, return_counts=True)
+        labels_R, counts_R = np.unique(right_y, return_counts=True)
 
         f = {l: c for l, c in zip(labels, counts)}
         f_L = {l: c for l, c in zip(labels_L, counts_L)}
@@ -86,11 +80,11 @@ class OrdinalGiniSimpson:
             if l not in f_R:
                 f_R[l] = 0
 
-        p_L = np.cumsum(np.array(sorted(f_L.items()))[:, 1] / len(left_target))
-        p_R = np.cumsum(np.array(sorted(f_R.items()))[:, 1] / len(right_target))
+        p_L = np.cumsum(np.array(sorted(f_L.items()))[:, 1] / len(left_y))
+        p_R = np.cumsum(np.array(sorted(f_R.items()))[:, 1] / len(right_y))
 
-        PL = len(left_target) / len(target)
-        PR = len(right_target) / len(target)
+        PL = len(left_y) / len(y)
+        PR = len(right_y) / len(y)
 
         gini = 0
         for p_L_i, p_R_i in zip(p_L, p_R):
@@ -128,28 +122,24 @@ class WeightedIG:
         }
         return weights
 
-    def compute(self, target, left_target, right_target):
-        unique_target = np.unique(target)
+    def compute(self, y, left_y, right_y, **kwargs):
+        unique_y = np.unique(y)
 
-        weights_father = self._get_weights(
-            target, unique_classes=unique_target, power=self.power
-        )
+        weights_father = self._get_weights(y, unique_classes=unique_y, power=self.power)
         weights_left = self._get_weights(
-            left_target, unique_classes=unique_target, power=self.power
+            left_y, unique_classes=unique_y, power=self.power
         )
         weights_right = self._get_weights(
-            right_target, unique_classes=unique_target, power=self.power
+            right_y, unique_classes=unique_y, power=self.power
         )
 
-        entropy_father = self._weighted_entropy_single(target, weights=weights_father)
-        entropy_left = self._weighted_entropy_single(left_target, weights=weights_left)
-        entropy_right = self._weighted_entropy_single(
-            right_target, weights=weights_right
-        )
+        entropy_father = self._weighted_entropy_single(y, weights=weights_father)
+        entropy_left = self._weighted_entropy_single(left_y, weights=weights_left)
+        entropy_right = self._weighted_entropy_single(right_y, weights=weights_right)
 
-        n_father = len(target)
-        n_left = len(left_target)
-        n_right = len(right_target)
+        n_father = len(y)
+        n_left = len(left_y)
+        n_right = len(right_y)
 
         split_entropy = ((n_left / n_father) * entropy_left) + (
             (n_right / n_father) * entropy_right
@@ -162,21 +152,19 @@ class WeightedIG:
 ##
 #
 class RankingImpurity:
-    def __init__(self):
-        pass
 
-    def _ranking_impurity_single(self, target):
-        labels, counts = np.unique(target, return_counts=True)
+    def _ranking_impurity_single(self, y):
+        labels, counts = np.unique(y, return_counts=True)
         ri = 0
         for j in range(len(labels)):
             for i in range(j):
                 ri += (labels[j] - labels[i]) * counts[i] * counts[j]
         return ri
 
-    def compute(self, target, left_target, right_target):
-        ri_father = self._ranking_impurity_single(target)
-        ri_left = self._ranking_impurity_single(left_target)
-        ri_right = self._ranking_impurity_single(right_target)
+    def compute(self, y, left_y, right_y, **kwargs):
+        ri_father = self._ranking_impurity_single(y)
+        ri_left = self._ranking_impurity_single(left_y)
+        ri_right = self._ranking_impurity_single(right_y)
 
         return ri_father - ri_left - ri_right
 
@@ -189,7 +177,7 @@ def make_cost_matrix(num_ratings, power):
         np.tile(range(num_ratings), num_ratings), (num_ratings, num_ratings)
     )
     cost_matrix = (
-        np.power(cost_matrix - np.transpose(cost_matrix), power)
+        np.power(np.absolute(cost_matrix - np.transpose(cost_matrix)), power)
         / (num_ratings - 1) ** power
     )
     return np.float32(cost_matrix)
@@ -201,20 +189,63 @@ class WeightedImpurity:
         self.power = power
         self.weights_matrix = make_cost_matrix(n_classes, self.power)
 
-    def _weighted_impurity_single(self, target):
-        labels, counts = np.unique(target, return_counts=True)
+    def _weighted_impurity_single(self, y):
+        labels, counts = np.unique(y, return_counts=True)
         ri = 0
         for j in range(len(labels)):
             for i in range(j):
                 ri += self.weights_matrix[labels[i], labels[j]] * counts[i] * counts[j]
         return ri
 
-    def compute(self, target, left_target, right_target):
-        ri_father = self._weighted_impurity_single(target)
-        ri_left = self._weighted_impurity_single(left_target)
-        ri_right = self._weighted_impurity_single(right_target)
+    def compute(self, y, left_y, right_y, **kwargs):
+        ri_father = self._weighted_impurity_single(y)
+        ri_left = self._weighted_impurity_single(left_y)
+        ri_right = self._weighted_impurity_single(right_y)
 
         return ri_father - ri_left - ri_right
+
+
+### Bayesian Impurity
+##
+#
+class OrdinalBayesianImpurity:
+    def __init__(self, n_classes, power):
+        self.n_classes = n_classes
+        self.power = power
+        self.weights_matrix = make_cost_matrix(n_classes, self.power)
+
+    def _compute_indiv(self, y_probas, root_y_probas):
+        obi = 0
+        for t in y_probas:
+            obi_t = 0
+            for d in y_probas:
+                obi_t += self.weights_matrix[t, d] * y_probas[d]
+            obi += root_y_probas[t] * obi_t
+        return obi
+
+    def compute(self, y, left_y, right_y, **kwargs):
+
+        root_y_probas = kwargs.get("root_y_probas")
+
+        labels, counts = np.unique(y, return_counts=True)
+        labels_L, counts_L = np.unique(left_y, return_counts=True)
+        labels_R, counts_R = np.unique(right_y, return_counts=True)
+
+        f = {l: p for l, p in zip(labels, counts / len(y))}
+        f_L = {l: p for l, p in zip(labels_L, counts_L / len(left_y))}
+        f_R = {l: p for l, p in zip(labels_R, counts_R / len(right_y))}
+
+        for l in f:
+            if l not in f_L:
+                f_L[l] = 0.0
+            if l not in f_R:
+                f_R[l] = 0.0
+
+        obi_father = self._compute_indiv(f, root_y_probas)
+        obi_left = self._compute_indiv(f_L, root_y_probas)
+        obi_right = self._compute_indiv(f_R, root_y_probas)
+
+        return obi_father - obi_left - obi_right
 
 
 ### Nysia Weighted Impurity (Nysia I. George, Tzu-Pin Lu, and Ching-Wei Chang, 2016).
@@ -234,7 +265,7 @@ class WeightedImpurity:
 #                 )
 #         return ri
 
-#     def compute(self, target, left_target, right_target):
+#     def compute(self, target, left_target, right_target, **kwargs):
 #         ri_father = self._weighted_impurity_single(target)
 #         ri_left = self._weighted_impurity_single(left_target)
 #         ri_right = self._weighted_impurity_single(right_target)
@@ -264,7 +295,7 @@ class WeightedImpurity:
 
 #         return 2 * pi_c1 * pi_c1_complement
 
-#     def compute(self, target, left_target, right_target):
+#     def compute(self, target, left_target, right_target, **kwargs):
 #         classes = np.unique(target)
 #         pL = len(left_target) / len(target)
 #         pR = len(right_target) / len(target)
@@ -311,7 +342,7 @@ class WeightedImpurity:
 
 #         return 2 * pi_c1 * pi_c1_complement
 
-#     def compute(self, target, left_target, right_target):
+#     def compute(self, target, left_target, right_target, **kwargs):
 #         classes = np.unique(target)
 #         pL = len(left_target) / len(target)
 #         pR = len(right_target) / len(target)
@@ -362,7 +393,7 @@ class WeightedImpurity:
 #         )
 #         return np.float32(cost_matrix)
 
-#     def compute(self, target, left_target, right_target):
+#     def compute(self, target, left_target, right_target, **kwargs):
 
 #         weights = self._make_cost_matrix(len(np.unique(target)))
 

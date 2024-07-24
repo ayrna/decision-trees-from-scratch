@@ -1,5 +1,5 @@
 import numpy as np
-from decision_tree_from_scratch.decisionTree_aux import split
+from decision_tree_from_scratch.tree_aux import split
 
 
 class Node:
@@ -15,6 +15,7 @@ class Node:
         random_state=None,
         _root_y_classes=None,
         _root_y_count=None,
+        _root_y_probas=None,
     ):
 
         self.depth = depth
@@ -33,6 +34,7 @@ class Node:
 
         self._root_y_classes = _root_y_classes
         self._root_y_count = _root_y_count
+        self._root_y_probas = _root_y_probas
 
         if self.depth >= self.max_depth:
             self.leaf = True
@@ -40,6 +42,7 @@ class Node:
     def fit(self, X, y):
 
         X = X.reset_index(drop=True)
+
         ## Save class distribution
         #
         #
@@ -47,7 +50,9 @@ class Node:
             # We are in the root node
             y = y.to_numpy().astype(int)
             self._root_y_classes, self._root_y_count = np.unique(y, return_counts=True)
-
+            self._root_y_probas = {
+                c: p for c, p in zip(self._root_y_classes, self._root_y_count / len(y))
+            }
         #
         self.node_y_count = np.zeros(len(self._root_y_classes))
         for i, c in enumerate(self._root_y_classes):
@@ -55,7 +60,7 @@ class Node:
         self.node_y = y
         ##
 
-        ## Check if is a leaf, if not, fit if not fitted
+        ## Check if this node is a leaf, if not, split
         #
         #
         if self.leaf:
@@ -63,7 +68,13 @@ class Node:
             return
         #
         if not self.fitted:
-            split_result = split(X, y, self.criterion, self.random_state)
+            split_result = split(
+                X=X,
+                y=y,
+                root_y_probas=self._root_y_probas,
+                criterion=self.criterion,
+                random_state=self.random_state,
+            )
             self.fitted = True
 
             if split_result is None:
@@ -92,6 +103,7 @@ class Node:
             random_state=self.random_state,
             _root_y_classes=self._root_y_classes,
             _root_y_count=self._root_y_count,
+            _root_y_probas=self._root_y_probas,
         )
         self.left.fit(X_left, y_left)
         #
@@ -102,6 +114,7 @@ class Node:
             random_state=self.random_state,
             _root_y_classes=self._root_y_classes,
             _root_y_count=self._root_y_count,
+            _root_y_probas=self._root_y_probas,
         )
         self.right.fit(X_right, y_right)
         #
