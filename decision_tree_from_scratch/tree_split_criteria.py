@@ -109,9 +109,7 @@ class WeightedIG:
 
     def _get_weights(self, y, unique_classes, power):
         mode_class = np.argmax(np.bincount(y))
-        weight_denominator = np.sum(
-            np.power(np.abs(unique_classes - mode_class), power)
-        )
+        weight_denominator = np.sum(np.power(np.abs(unique_classes - mode_class), power))
         weights = {
             u: (
                 np.power(abs(u - mode_class), power) / weight_denominator
@@ -126,12 +124,8 @@ class WeightedIG:
         unique_y = np.unique(y)
 
         weights_father = self._get_weights(y, unique_classes=unique_y, power=self.power)
-        weights_left = self._get_weights(
-            left_y, unique_classes=unique_y, power=self.power
-        )
-        weights_right = self._get_weights(
-            right_y, unique_classes=unique_y, power=self.power
-        )
+        weights_left = self._get_weights(left_y, unique_classes=unique_y, power=self.power)
+        weights_right = self._get_weights(right_y, unique_classes=unique_y, power=self.power)
 
         entropy_father = self._weighted_entropy_single(y, weights=weights_father)
         entropy_left = self._weighted_entropy_single(left_y, weights=weights_left)
@@ -214,18 +208,21 @@ class OrdinalBayesianImpurity:
         self.power = power
         self.weights_matrix = make_cost_matrix(n_classes, self.power)
 
-    def _compute_indiv(self, y_probas, root_y_probas):
+    def _compute_indiv(self, y_probas):
         obi = 0
         for t in y_probas:
             obi_t = 0
             for d in y_probas:
                 obi_t += self.weights_matrix[t, d] * y_probas[d]
-            obi += root_y_probas[t] * obi_t
+            obi += y_probas[t] * obi_t
         return obi
 
     def compute(self, y, left_y, right_y, **kwargs):
+        print("Fixed version of bayesian impurity")
 
-        root_y_probas = kwargs.get("root_y_probas")
+        n_father = len(y)
+        n_left = len(left_y)
+        n_right = len(right_y)
 
         labels, counts = np.unique(y, return_counts=True)
         labels_L, counts_L = np.unique(left_y, return_counts=True)
@@ -241,11 +238,13 @@ class OrdinalBayesianImpurity:
             if l not in f_R:
                 f_R[l] = 0.0
 
-        obi_father = self._compute_indiv(f, root_y_probas)
-        obi_left = self._compute_indiv(f_L, root_y_probas)
-        obi_right = self._compute_indiv(f_R, root_y_probas)
+        obi_father = self._compute_indiv(f)
+        obi_left = self._compute_indiv(f_L)
+        obi_right = self._compute_indiv(f_R)
 
-        return obi_father - obi_left - obi_right
+        split_entropy = ((n_left / n_father) * obi_left) + ((n_right / n_father) * obi_right)
+
+        return obi_father - split_entropy
 
 
 ### Nysia Weighted Impurity (Nysia I. George, Tzu-Pin Lu, and Ching-Wei Chang, 2016).
