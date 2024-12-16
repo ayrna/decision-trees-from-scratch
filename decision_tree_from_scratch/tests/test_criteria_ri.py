@@ -1,5 +1,5 @@
 import numpy as np
-from decision_tree_from_scratch.tree_split_criteria import RankingImpurity
+from decision_tree_from_scratch._tree_split_criteria import RankingImpurity
 
 
 def generate_array(counts):

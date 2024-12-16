@@ -1,5 +1,5 @@
 import numpy as np
-from decision_tree_from_scratch.tree_split_criteria import InformationGain
+from decision_tree_from_scratch._tree_split_criteria import InformationGain
 
 
 def generate_array(counts):

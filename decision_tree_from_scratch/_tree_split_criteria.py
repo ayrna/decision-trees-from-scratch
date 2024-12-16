@@ -100,19 +100,29 @@ class WeightedInformationGain(SplitCriterion):
       trees. Expert Systems with Applications, 152, 113375.
     """
 
+    def __init__(self, n_classes, power=1):
+        """
+        Parameters:
+        -----------
+        n_classes (int): Number of classes in the target variable.
+        power (int): Power of the weights. Default is 1.
+        """
+        super().__init__(n_classes)
+        self.power = power
+
     def _node_impurity(self, y, weights):
         cd = ClassDistribution(y, self.n_classes)
         w = np.array([weights[u] for u in cd.get_non_zero_labels()])
         entropy = -np.sum(w * cd.get_non_zero_probas() * np.log2(cd.get_non_zero_probas()))
         return entropy
 
-    def _get_weights(self, y, unique_classes, power):
+    def _get_weights(self, y, unique_classes):
         mode_class = np.argmax(np.bincount(y))
 
-        weight_denominator = np.sum(np.power(np.abs(unique_classes - mode_class), power))
+        weight_denominator = np.sum(np.power(np.abs(unique_classes - mode_class), self.power))
         weights = {
             u: (
-                np.power(abs(u - mode_class), power) / weight_denominator
+                np.power(abs(u - mode_class), self.power) / weight_denominator
                 if not math.isclose(weight_denominator, 0.0)
                 else 0
             )
@@ -123,9 +133,9 @@ class WeightedInformationGain(SplitCriterion):
     def _compute(self, y, left_y, right_y, **kwargs):
         unique_y = np.unique(y)
 
-        weights_parent = self._get_weights(y, unique_classes=unique_y, power=self.power)
-        weights_left = self._get_weights(left_y, unique_classes=unique_y, power=self.power)
-        weights_right = self._get_weights(right_y, unique_classes=unique_y, power=self.power)
+        weights_parent = self._get_weights(y, unique_classes=unique_y)
+        weights_left = self._get_weights(left_y, unique_classes=unique_y)
+        weights_right = self._get_weights(right_y, unique_classes=unique_y)
 
         entropy_parent = self.node_impurity(y, weights=weights_parent)
         entropy_left = self.node_impurity(left_y, weights=weights_left)

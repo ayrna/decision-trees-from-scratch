@@ -1,6 +1,6 @@
 import numpy as np
 import decision_tree_from_scratch._tree_split_criteria as criterias
-from decision_tree_from_scratch._tree_node import Tree
+from decision_tree_from_scratch._tree_ import Tree
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.multiclass import unique_labels
 

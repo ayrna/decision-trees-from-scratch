@@ -13,7 +13,7 @@ class SplitCriterion:
     def __init__(self, n_classes):
         self.n_classes = n_classes
 
-    def node_impurity(self, y):
+    def node_impurity(self, y, **kwargs):
         """
         Calculate the impurity of a single node depending on the criterion, e.g. the impurity of the Information
         Gain criterion is the entropy.
@@ -24,7 +24,7 @@ class SplitCriterion:
         Returns:
         float: Impurity of the node.
         """
-        return self._node_impurity(y)
+        return self._node_impurity(y, **kwargs)
 
     def compute(self, y, left_y, right_y, **kwargs):
         """
