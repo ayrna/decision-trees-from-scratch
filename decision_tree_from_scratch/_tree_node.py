@@ -2,9 +2,9 @@ import numpy as np
 from decision_tree_from_scratch.tree_aux import split
 
 
-class Node:
+class Tree:
     """
-    CART implementation of a decision tree classifier.
+    CART implementation of a tree growth algorithm.
     """
 
     def __init__(
@@ -39,7 +39,7 @@ class Node:
         if self.depth >= self.max_depth:
             self.leaf = True
 
-    def fit(self, X, y):
+    def grow(self, X, y):
 
         X = X.reset_index(drop=True)
 
@@ -50,9 +50,7 @@ class Node:
             # We are in the root node
             y = y.to_numpy().astype(int)
             self._root_y_classes, self._root_y_count = np.unique(y, return_counts=True)
-            self._root_y_probas = {
-                c: p for c, p in zip(self._root_y_classes, self._root_y_count / len(y))
-            }
+            self._root_y_probas = {c: p for c, p in zip(self._root_y_classes, self._root_y_count / len(y))}
         #
         self.node_y_count = np.zeros(len(self._root_y_classes))
         for i, c in enumerate(self._root_y_classes):
@@ -96,7 +94,7 @@ class Node:
         X_right = X[~left_indices]
         y_right = y[~left_indices]
         #
-        self.left = Node(
+        self.left = Tree(
             depth=self.depth + 1,
             max_depth=self.max_depth,
             criterion=self.criterion,
@@ -105,9 +103,9 @@ class Node:
             _root_y_count=self._root_y_count,
             _root_y_probas=self._root_y_probas,
         )
-        self.left.fit(X_left, y_left)
+        self.left.grow(X_left, y_left)
         #
-        self.right = Node(
+        self.right = Tree(
             depth=self.depth + 1,
             max_depth=self.max_depth,
             criterion=self.criterion,
@@ -116,7 +114,7 @@ class Node:
             _root_y_count=self._root_y_count,
             _root_y_probas=self._root_y_probas,
         )
-        self.right.fit(X_right, y_right)
+        self.right.grow(X_right, y_right)
         #
         ##
 

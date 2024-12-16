@@ -1,12 +1,12 @@
 import pandas as pd
 import numpy as np
-from decision_tree_from_scratch.tree_node import Node
-from decision_tree_from_scratch.tree_split_criteria import OrdinalBayesianImpurity
+from decision_tree_from_scratch.tree_node import Tree
+from decision_tree_from_scratch.tree_split_criteria import OrdinalGini
 
 
 def test_node_split_tracking_of_root_y_info():
-    criterion = OrdinalBayesianImpurity(n_classes=4, power=2)
-    node = Node(
+    criterion = OrdinalGini(n_classes=4)
+    node = Tree(
         criterion=criterion,
         depth=0,
         max_depth=1,

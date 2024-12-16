@@ -1,9 +1,8 @@
 import numpy as np
-import decision_tree_from_scratch.tree_split_criteria as criterias
-from decision_tree_from_scratch.tree_node import Node
+import decision_tree_from_scratch._tree_split_criteria as criterias
+from decision_tree_from_scratch._tree_node import Tree
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.multiclass import unique_labels
-from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 
 class DTC(ClassifierMixin, BaseEstimator):
@@ -11,90 +10,46 @@ class DTC(ClassifierMixin, BaseEstimator):
         self,
         criterion="gini",
         max_depth=5,
-        weights_exponent=None,
-        handle_non_aranged_classes=False,
         random_state=None,
     ):
         self.criterion = criterion
         self.max_depth = max_depth
-        self.weights_exponent = weights_exponent
-        self.handle_non_aranged_classes = handle_non_aranged_classes
         self.random_state = random_state
 
     def fit(self, X, y):
-        # X, y = check_X_y(X, y)
         self.classes_ = unique_labels(y)
+        self.n_classes_ = max(self.classes_) + 1
 
-        if (
-            self.weights_exponent is not None
-            and self.criterion != "weighted_information_gain"
-            and self.criterion != "qwk_weighted_information_gain"
-            and self.criterion != "weighted_impurity"
-            and self.criterion != "ordinal_bayesian_impurity"
-        ):
-            raise ValueError(
-                "weighted_ig_power can only be used with criterion='weighted_information_gain'"
-            )
+        if not np.array_equal(self.classes_, np.arange(self.n_classes_)):
+            raise ValueError("Classes should be labeled from 0 to n_classes - 1.")
 
-        if not np.array_equal(self.classes_, np.arange(max(self.classes_) + 1)):
-            if not self.handle_non_aranged_classes:
-                raise ValueError(
-                    "Classes are not aranged from 0 to the highest class. Set handle_non_aranged_classes argument to True to avoid this error."
-                )
-
-        if self.criterion == "information_gain":
-            self._criterion = criterias.InformationGain()
-        elif self.criterion == "gini":
-            self._criterion = criterias.GiniSimpson()
-        elif self.criterion == "gini2":
-            self._criterion = criterias.GiniSimpson2()
-        elif self.criterion == "ordinal_gini":
-            self._criterion = criterias.OrdinalGiniSimpson()
-        elif self.criterion == "weighted_information_gain":
-            self._criterion = (
-                criterias.WeightedIG(power=self.weights_exponent)
-                if self.weights_exponent is not None
-                else criterias.WeightedIG()
-            )
-        elif self.criterion == "ranking_impurity":
-            self._criterion = criterias.RankingImpurity()
-        elif self.criterion == "weighted_impurity":
-            self._criterion = criterias.WeightedImpurity(
-                n_classes=max(self.classes_) + 1, power=self.weights_exponent
-            )
-        elif self.criterion == "ordinal_bayesian_impurity":
-            self._criterion = criterias.OrdinalBayesianImpurity(
-                n_classes=max(self.classes_) + 1, power=self.weights_exponent
-            )
-        elif self.criterion == "nysia_impurity":
-            self._criterion = criterias.NysiaImpurity()
-        elif self.criterion == "twoing_criterion":
-            self._criterion = criterias.TwoingCriterion()
-        elif self.criterion == "ordinal_twoing_criterion":
-            self._criterion = criterias.OrdinalTwoingCriterion()
+        if self.criterion == "gini":
+            self._criterion = criterias.Gini(n_classes=self.n_classes_)
+        elif self.criterion == "ig":
+            self._criterion = criterias.InformationGain(n_classes=self.n_classes_)
+        elif self.criterion == "ogini":
+            self._criterion = criterias.OrdinalGini(n_classes=self.n_classes_)
+        elif self.criterion == "wig":
+            self._criterion = criterias.WeightedInformationGain(n_classes=self.n_classes_, power=1)
+        elif self.criterion == "ri":
+            self._criterion = criterias.RankingImpurity(n_classes=self.n_classes_)
         else:
             raise ValueError(f"Criterion {self.criterion} not recognized.")
 
-        self._tree = Node(
+        self._tree = Tree(
             criterion=self._criterion,
             max_depth=self.max_depth,
             random_state=self.random_state,
         )
 
-        self._tree.fit(X, y)
+        self._tree.grow(X, y)
 
         return self
 
     def predict(self, X):
-        check_is_fitted(self)
-        # X = check_array(X)
-
         return self._tree.predict(X)
 
     def predict_proba(self, X):
-        check_is_fitted(self)
-        # X = check_array(X)
-
         return self._tree.predict_proba(X)
 
     def print_tree(self):

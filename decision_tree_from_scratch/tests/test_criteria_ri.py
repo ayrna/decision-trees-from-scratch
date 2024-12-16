@@ -1,5 +1,5 @@
 import numpy as np
-from decision_tree_from_scratch.tree_split_criteria import OrdinalBayesianImpurity
+from decision_tree_from_scratch.tree_split_criteria import RankingImpurity
 
 
 def generate_array(counts):
@@ -7,7 +7,7 @@ def generate_array(counts):
     return array
 
 
-def test_ordinal_bayesian_impurity():
+def test_ranking_impurity():
 
     root_counts = {
         0: 345,
@@ -43,28 +43,14 @@ def test_ordinal_bayesian_impurity():
     }
     target = generate_array(counts_target)
 
-    criterion_val_p1 = OrdinalBayesianImpurity(n_classes=4, power=1).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
-    criterion_val_p2 = OrdinalBayesianImpurity(n_classes=4, power=2).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
-    criterion_val_p4 = OrdinalBayesianImpurity(n_classes=4, power=4).compute(
+    criterion_val = RankingImpurity(n_classes=4).compute(
         target,
         left,
         right,
         root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
     )
 
-    assert np.isclose(criterion_val_p1, -0.39935274)
-    assert np.isclose(criterion_val_p2, -0.26027114)
-    assert np.isclose(criterion_val_p4, -0.16327805)
+    assert np.isclose(criterion_val, 11326, atol=1e-8)
 
     ## Test 2
 
@@ -92,28 +78,14 @@ def test_ordinal_bayesian_impurity():
     }
     target = generate_array(counts_target)
 
-    criterion_val_p1 = OrdinalBayesianImpurity(n_classes=4, power=1).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
-    criterion_val_p2 = OrdinalBayesianImpurity(n_classes=4, power=2).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
-    criterion_val_p4 = OrdinalBayesianImpurity(n_classes=4, power=4).compute(
+    criterion_val = RankingImpurity(n_classes=4).compute(
         target,
         left,
         right,
         root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
     )
 
-    assert np.isclose(criterion_val_p1, -0.39294210)
-    assert np.isclose(criterion_val_p2, -0.24652257)
-    assert np.isclose(criterion_val_p4, -0.14451293)
+    assert np.isclose(criterion_val, 19136, atol=1e-8)
 
     ## Test 3
 
@@ -141,25 +113,11 @@ def test_ordinal_bayesian_impurity():
     }
     target = generate_array(counts_target)
 
-    criterion_val_p1 = OrdinalBayesianImpurity(n_classes=4, power=1).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
-    criterion_val_p2 = OrdinalBayesianImpurity(n_classes=4, power=2).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
-    criterion_val_p4 = OrdinalBayesianImpurity(n_classes=4, power=4).compute(
+    criterion_val = RankingImpurity(n_classes=4).compute(
         target,
         left,
         right,
         root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
     )
 
-    assert np.isclose(criterion_val_p1, -0.36433577)
-    assert np.isclose(criterion_val_p2, -0.22029576)
-    assert np.isclose(criterion_val_p4, -0.12334360)
+    assert np.isclose(criterion_val, 20390, atol=1e-8)

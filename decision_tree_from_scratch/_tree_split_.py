@@ -1,15 +1,4 @@
-import numpy as np
-
-
-## Function to compute the moving average to work with numeric features
-#
-def moving_average(feature_values):
-    sorted_values = np.sort(feature_values)
-
-    # Calculate midpoints between consecutive values
-    midpoints = (sorted_values[:-1] + sorted_values[1:]) / 2.0
-
-    return np.unique(midpoints)
+from decision_tree_from_scratch._tree_split_aux import moving_average
 
 
 ## Function to evaluate a feature, it first extract a set of thresholds,
@@ -59,9 +48,7 @@ def split(X, y, root_y_probas, criterion, random_state):
     # 1.
     #
     for f_name, f_vals in X.items():
-        threshold, criterion_val = evaluate_feature(
-            f_vals, y, root_y_probas, criterion, random_state
-        )
+        threshold, criterion_val = evaluate_feature(f_vals, y, root_y_probas, criterion, random_state)
 
         if threshold is None:
             continue
