@@ -1,69 +1,75 @@
 import math
 import numpy as np
 from decision_tree_from_scratch._tree_split_aux import ClassDistribution
+from decision_tree_from_scratch._tree_split_criteria_base import SplitCriterion
 
 
-### Information Gain.
-##
-#
-class InformationGain:
-    def __init__(self, n_classes):
-        self.n_classes = n_classes
+class InformationGain(SplitCriterion):
+    """
+    Information Gain (IG) split criterion.
 
-    def _entropy_single(self, y):
+    The Information Gain criterion is a measure of the reduction in entropy that results from splitting a node.
+    """
+
+    def _node_impurity(self, y):
         cd = ClassDistribution(y, self.n_classes)
         entropy = -np.sum(cd.get_non_zero_probas() * np.log2(cd.get_non_zero_probas()))
         return entropy
 
-    def compute(self, y, left_y, right_y, **kwargs):
-        n_father = len(y)
+    def _compute(self, y, left_y, right_y, **kwargs):
+        n_parent = len(y)
         n_left = len(left_y)
         n_right = len(right_y)
 
-        entropy_father = self._entropy_single(y)
-        entropy_left = self._entropy_single(left_y)
-        entropy_right = self._entropy_single(right_y)
+        entropy_parent = self.node_impurity(y)
+        entropy_left = self.node_impurity(left_y)
+        entropy_right = self.node_impurity(right_y)
 
-        split_entropy = ((n_left / n_father) * entropy_left) + ((n_right / n_father) * entropy_right)
+        split_entropy = ((n_left / n_parent) * entropy_left) + ((n_right / n_parent) * entropy_right)
 
-        return entropy_father - split_entropy
+        return entropy_parent - split_entropy
 
 
-### Gini-index
-##
-#
-class Gini:
-    def __init__(self, n_classes):
-        self.n_classes = n_classes
+class Gini(SplitCriterion):
+    """
+    Gini split criterion.
 
-    def _compute_single(self, y):
+    The Gini criterion computes the decrease in gini-index impurity. This impurity measure is the sum of the
+    squared probabilities of each class.
+    """
+
+    def _node_impurity(self, y):
         cd = ClassDistribution(y, self.n_classes)
         gini = 1 - np.sum(cd.get_probas() ** 2)
         return gini
 
-    def compute(self, y, left_y, right_y, **kwargs):
-        cd_father = ClassDistribution(y, self.n_classes)
+    def _compute(self, y, left_y, right_y, **kwargs):
+        cd_parent = ClassDistribution(y, self.n_classes)
         cd_left = ClassDistribution(left_y, self.n_classes)
         cd_right = ClassDistribution(right_y, self.n_classes)
 
-        gini_father = 1 - np.sum(cd_father.get_probas() ** 2)
+        gini_parent = 1 - np.sum(cd_parent.get_probas() ** 2)
         gini_left = 1 - np.sum(cd_left.get_probas() ** 2)
         gini_right = 1 - np.sum(cd_right.get_probas() ** 2)
 
         PL = len(left_y) / len(y)
         PR = len(right_y) / len(y)
 
-        return gini_father - (PL * gini_left) - (PR * gini_right)
+        return gini_parent - (PL * gini_left) - (PR * gini_right)
 
 
-### Ordinal Gini-Simpson. (Raffaella Piccarreta. 2007.)
-##
-#
-class OrdinalGini:
-    def __init__(self, n_classes):
-        self.n_classes = n_classes
+class OrdinalGini(SplitCriterion):
+    """
+    Ordinal Gini (OGini) split criterion [1].
 
-    def _compute_single_ogini(self, y):
+    The OGini criterion computes the decrease in ordinal gini impurity. This impurity measure is
+    the sum of the squared cumulative probabilities of each class.
+
+    ····
+    [1] Raffaella Piccarreta. 2007. A new impurity measure for classification trees based on the Gini index.
+    """
+
+    def _node_impurity(self, y):
         cd = ClassDistribution(y, self.n_classes)
         cumprobas = cd.get_cumprobas()
         ogini = 0
@@ -71,26 +77,30 @@ class OrdinalGini:
             ogini += cumprobas[i] * (1 - cumprobas[i])
         return ogini
 
-    def compute(self, y, left_y, right_y, **kwargs):
-        ogini_father = self._compute_single_ogini(y)
-        ogini_left = self._compute_single_ogini(left_y)
-        ogini_right = self._compute_single_ogini(right_y)
+    def _compute(self, y, left_y, right_y, **kwargs):
+        ogini_parent = self.node_impurity(y)
+        ogini_left = self.node_impurity(left_y)
+        ogini_right = self.node_impurity(right_y)
 
         PL = len(left_y) / len(y)
         PR = len(right_y) / len(y)
 
-        return ogini_father - (PL * ogini_left) - (PR * ogini_right)
+        return ogini_parent - (PL * ogini_left) - (PR * ogini_right)
 
 
-### Weighted IG. (Fen Xia, Wensheng Zhang, and Jue Wang. 2006)
-##
-#
-class WeightedInformationGain:
-    def __init__(self, n_classes, power=2):
-        self.n_classes = n_classes
-        self.power = power
+class WeightedInformationGain(SplitCriterion):
+    """
+    Weighted Information Gain (WIG) split criterion [1].
 
-    def _weighted_entropy_single(self, y, weights):
+    The WIG criterion computes the decrease in weighted entropy that results from splitting a node. The impurity of
+    a node is calculated as the weighted entropy of the node.
+
+    ····
+    [1] Singer, G., Anuar, R., & Ben-Gal, I. (2020). A weighted information-gain measure for ordinal classification
+      trees. Expert Systems with Applications, 152, 113375.
+    """
+
+    def _node_impurity(self, y, weights):
         cd = ClassDistribution(y, self.n_classes)
         w = np.array([weights[u] for u in cd.get_non_zero_labels()])
         entropy = -np.sum(w * cd.get_non_zero_probas() * np.log2(cd.get_non_zero_probas()))
@@ -110,34 +120,39 @@ class WeightedInformationGain:
         }
         return weights
 
-    def compute(self, y, left_y, right_y, **kwargs):
+    def _compute(self, y, left_y, right_y, **kwargs):
         unique_y = np.unique(y)
 
-        weights_father = self._get_weights(y, unique_classes=unique_y, power=self.power)
+        weights_parent = self._get_weights(y, unique_classes=unique_y, power=self.power)
         weights_left = self._get_weights(left_y, unique_classes=unique_y, power=self.power)
         weights_right = self._get_weights(right_y, unique_classes=unique_y, power=self.power)
 
-        entropy_father = self._weighted_entropy_single(y, weights=weights_father)
-        entropy_left = self._weighted_entropy_single(left_y, weights=weights_left)
-        entropy_right = self._weighted_entropy_single(right_y, weights=weights_right)
+        entropy_parent = self.node_impurity(y, weights=weights_parent)
+        entropy_left = self.node_impurity(left_y, weights=weights_left)
+        entropy_right = self.node_impurity(right_y, weights=weights_right)
 
-        n_father = len(y)
+        n_parent = len(y)
         n_left = len(left_y)
         n_right = len(right_y)
 
-        split_entropy = ((n_left / n_father) * entropy_left) + ((n_right / n_father) * entropy_right)
+        split_entropy = ((n_left / n_parent) * entropy_left) + ((n_right / n_parent) * entropy_right)
 
-        return entropy_father - split_entropy
+        return entropy_parent - split_entropy
 
 
-### Ranking Impurity. (Fen Xia, Wensheng Zhang, and Jue Wang. 2006)
-##
-#
-class RankingImpurity:
-    def __init__(self, n_classes):
-        self.n_classes = n_classes
+class RankingImpurity(SplitCriterion):
+    """
+    Ranking Impurity (RI) split criterion [1].
 
-    def _ranking_impurity_single(self, y):
+    The RI criterion measures the decrease in RI that results from the split. The RI is the potential maximum
+    number of missclassified samples based on a given node distribution.
+
+    ····
+    [1] Xia, F., Zhang, W., & Wang, J. (2006). An Effective Tree-Based Algorithm for Ordinal Regression.
+    IEEE Intell. Informatics Bull., 7(1), 22-26.
+    """
+
+    def _node_impurity(self, y):
         cd = ClassDistribution(y, self.n_classes)
         ri = 0
         for j in range(self.n_classes):
@@ -146,9 +161,9 @@ class RankingImpurity:
                 ri += (cd.labels[j] - cd.labels[i]) * cd.counts[i] * cd.counts[j]
         return ri
 
-    def compute(self, y, left_y, right_y, **kwargs):
-        ri_father = self._ranking_impurity_single(y)
-        ri_left = self._ranking_impurity_single(left_y)
-        ri_right = self._ranking_impurity_single(right_y)
+    def _compute(self, y, left_y, right_y, **kwargs):
+        ri_parent = self.node_impurity(y)
+        ri_left = self.node_impurity(left_y)
+        ri_right = self.node_impurity(right_y)
 
-        return ri_father - ri_left - ri_right
+        return ri_parent - ri_left - ri_right
