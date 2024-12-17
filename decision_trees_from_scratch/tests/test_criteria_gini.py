@@ -1,5 +1,5 @@
 import numpy as np
-from decision_tree_from_scratch._tree_split_criteria import OrdinalGini
+from decision_trees_from_scratch._tree_split_criteria import Gini
 
 
 def generate_array(counts):
@@ -7,7 +7,7 @@ def generate_array(counts):
     return array
 
 
-def test_ordinal_gini():
+def test_gini():
 
     root_counts = {
         0: 245,
@@ -43,14 +43,14 @@ def test_ordinal_gini():
     }
     target = generate_array(counts_target)
 
-    criterion_val_p1 = OrdinalGini(n_classes=4).compute(
+    criterion_val_p1 = Gini(n_classes=4).compute(
         target,
         left,
         right,
         root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
     )
 
-    assert np.isclose(criterion_val_p1, 0.214248054378297, atol=1e-8)
+    assert np.isclose(criterion_val_p1, 0.388493145987579, atol=1e-8)
 
     ## Test 2
 
@@ -78,11 +78,11 @@ def test_ordinal_gini():
     }
     target = generate_array(counts_target)
 
-    criterion_val_p1 = OrdinalGini(n_classes=4).compute(
+    criterion_val_p1 = Gini(n_classes=4).compute(
         target,
         left,
         right,
         root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
     )
 
-    assert np.isclose(criterion_val_p1, 0.00304927378597967, atol=1e-8)
+    assert np.isclose(criterion_val_p1, 0.00339580389807886, atol=1e-8)

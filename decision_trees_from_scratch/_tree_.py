@@ -1,5 +1,5 @@
 import numpy as np
-from decision_tree_from_scratch._tree_split_ import split
+from decision_trees_from_scratch._tree_split_ import split
 
 
 class Tree:

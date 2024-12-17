@@ -1,4 +1,4 @@
-from decision_tree_from_scratch._tree_split_aux import moving_average
+from decision_trees_from_scratch._tree_split_aux import moving_average
 
 
 ## Function to evaluate a feature, it first extract a set of thresholds,

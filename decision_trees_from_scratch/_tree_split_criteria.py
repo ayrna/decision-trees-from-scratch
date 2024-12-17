@@ -1,7 +1,7 @@
 import math
 import numpy as np
-from decision_tree_from_scratch._tree_split_aux import ClassDistribution
-from decision_tree_from_scratch._tree_split_criteria_base import SplitCriterion
+from decision_trees_from_scratch._tree_split_aux import ClassDistribution
+from decision_trees_from_scratch._tree_split_criteria_base import SplitCriterion
 
 
 class InformationGain(SplitCriterion):

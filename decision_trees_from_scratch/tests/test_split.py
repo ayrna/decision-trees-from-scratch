@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from decision_tree_from_scratch._tree_ import Tree
-from decision_tree_from_scratch._tree_split_criteria import OrdinalGini
+from decision_trees_from_scratch._tree_ import Tree
+from decision_trees_from_scratch._tree_split_criteria import OrdinalGini
 
 
 def test_node_split_tracking_of_root_y_info():
