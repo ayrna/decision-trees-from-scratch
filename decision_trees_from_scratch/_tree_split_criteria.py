@@ -1,4 +1,3 @@
-import math
 import numpy as np
 from decision_trees_from_scratch._tree_split_aux import ClassDistribution
 from decision_trees_from_scratch._tree_split_criteria_base import SplitCriterion
@@ -123,7 +122,7 @@ class WeightedInformationGain(SplitCriterion):
         weights = {
             u: (
                 np.power(abs(u - mode_class), self.power) / weight_denominator
-                if not math.isclose(weight_denominator, 0.0)
+                if not np.isclose(weight_denominator, 0.0)
                 else 0
             )
             for u in unique_classes

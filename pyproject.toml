@@ -1,10 +1,10 @@
 [project]
-name = "decision-tree-from-scratch"
+name = "decision-trees-from-scratch"
 version = "0.0.1"
 authors = [
-  { name="Rafael Ayllón Gavilán", email="rafaaylloningeniero@gmail.com" },
+  { name="Rafael Ayllón Gavilán", email="rayllong@uco.es" },
 ]
-description = "From scratch implementation of a decision tree classifier that perform the same as sklearn implementation"
+description = "From scratch decision tree algorithm implementation in python. Providing an sklearn compatible interface and novel ordinal regression splitting criteria."
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -14,8 +14,10 @@ classifiers = [
 ]
 dependencies = [
     "numpy",
+    "scikit-learn",
+    "pandas",
 ]
 
 [project.urls]
-Homepage = "https://github.com/RafaAyGar/decision-tree-from-scratch"
-Issues = "https://github.com/RafaAyGar/decision-tree-from-scratch/issues"
+Homepage = "https://github.com/ayrna/decision-trees-from-scratch"
+Issues = "https://github.com/ayrna/decision-trees-from-scratch/issues"
