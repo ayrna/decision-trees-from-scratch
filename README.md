@@ -1,4 +1,4 @@
-This repository hosts my Python implementation of a decision tree classifier built from scratch, without relying on existing machine learning libraries like scikit-learn. Despite being developed independently, my implementation achieves the exact same accuracy as the decision tree classifier provided by scikit-learn.
+This repository hosts a Python implementation of a CART decision tree algorithm built from scratch, without relying on existing machine learning libraries like scikit-learn. Despite being developed independently, my implementation achieves same accuracy results as scikit-learn implementation.
 Features
 
 * From Scratch Implementation: I've crafted this decision tree classifier entirely from the ground up, providing insights into the inner workings of decision tree algorithms.
