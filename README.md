@@ -1,10 +1,7 @@
-This repository hosts a Python implementation of a CART decision tree algorithm built from scratch, without relying on existing machine learning libraries like scikit-learn. Despite being developed independently, my implementation achieves same accuracy results as scikit-learn implementation.
-Features
+This repository provides a from scratch sklearn-based implementation of the CART algorithm for classification. Our implementation introduces notable differences compared to the existing sklearn [DecisionTreeClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html "DecisionTreeClassifier"):
 
-* From Scratch Implementation: I've crafted this decision tree classifier entirely from the ground up, providing insights into the inner workings of decision tree algorithms.
+* :rocket: It is **fully developed in python**. This enables researchers to easily tweak the algorithm and experiment with it for research purposes.
 
-* Comparable Accuracy: I rigorously tested my implementation against scikit-learn's decision tree classifier to ensure identical accuracy in classification tasks.
+* :rocket: Includes current state-of-the-art splitting criteria implementation for ordinal regression tasks (Ordinal Gini, Weighted Entropy and Ranking Impurity).
 
-* Customizable and Extendable: Easily customize and extend the decision tree algorithm to suit your specific needs. Whether it's modifying splitting criteria, handling missing values, or integrating with other algorithms, my codebase offers flexibility.
-
-* Educational Resource: Ideal for learning about decision tree algorithms, this repository serves as an educational resource for understanding the fundamentals of machine learning.
+:sparkles: Despite being developed from scratch, our implementation achieves **same accuracy results as scikit-learn implementation**.
