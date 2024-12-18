@@ -19,4 +19,6 @@ This framework provides a from scratch sklearn-based implementation of the CART 
 # 📚 Citation
 If you enjoyed this framework, we would appretiate a citation for the following work:
 
+```bibtex
 *(reference coming soon)*
+```
