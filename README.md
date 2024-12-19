@@ -20,5 +20,13 @@ This framework provides a from scratch sklearn-based implementation of the CART 
 If you enjoyed this framework, we would appretiate a citation for the following work:
 
 ```bibtex
-*(reference coming soon)*
+@misc{ayllóngavilán2024splittingcriteriaordinaldecision,
+      title={Splitting criteria for ordinal decision trees: an experimental study}, 
+      author={Rafael Ayllón-Gavilán and Francisco José Martínez-Estudillo and David Guijo-Rubio and César Hervás-Martínez and Pedro Antonio Gutiérrez},
+      year={2024},
+      eprint={2412.13697},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2412.13697}, 
+}
 ```
