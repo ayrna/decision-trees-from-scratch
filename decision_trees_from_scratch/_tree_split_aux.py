@@ -13,14 +13,20 @@ def moving_average(feature_values):
 
 
 class ClassDistribution:
-    def __init__(self, y, Q):
+    def __init__(self, y, Q, sample_weight=None):
         self.Q = Q
         labels, counts = np.unique(y, return_counts=True)
         f = {l: c for l, c in zip(labels, counts)}
         self.counts = np.ones(self.Q) * -1
-        for i in np.arange(self.Q):
-            self.counts[i] = f[i] if i in f else 0
-        self.counts = self.counts.astype(int)
+
+        if sample_weight is None:
+            for i in np.arange(self.Q):
+                self.counts[i] = f[i] if i in f else 0
+            self.counts = self.counts.astype(int)
+        else:
+            for i in np.arange(self.Q):
+                self.counts[i] = np.sum(sample_weight[y == i]) if i in f else 0
+
         self.labels = np.arange(self.Q)
 
     def get_probas(self):

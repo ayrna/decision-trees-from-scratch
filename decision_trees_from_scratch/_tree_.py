@@ -39,7 +39,7 @@ class Tree:
         if self.depth >= self.max_depth:
             self.leaf = True
 
-    def grow(self, X, y):
+    def grow(self, X, y, sample_weight):
 
         X = X.reset_index(drop=True)
 
@@ -69,8 +69,8 @@ class Tree:
             split_result = split(
                 X=X,
                 y=y,
-                root_y_probas=self._root_y_probas,
                 criterion=self.criterion,
+                sample_weight=sample_weight,
                 random_state=self.random_state,
             )
             self.fitted = True
@@ -91,8 +91,10 @@ class Tree:
         left_indices = X[self.feature] <= self.threshold
         X_left = X[left_indices]
         y_left = y[left_indices]
+        sample_weight_left = sample_weight[left_indices] if sample_weight is not None else None
         X_right = X[~left_indices]
         y_right = y[~left_indices]
+        sample_weight_right = sample_weight[~left_indices] if sample_weight is not None else None
         #
         self.left = Tree(
             depth=self.depth + 1,
@@ -103,7 +105,7 @@ class Tree:
             _root_y_count=self._root_y_count,
             _root_y_probas=self._root_y_probas,
         )
-        self.left.grow(X_left, y_left)
+        self.left.grow(X_left, y_left, sample_weight=sample_weight_left)
         #
         self.right = Tree(
             depth=self.depth + 1,
@@ -114,7 +116,7 @@ class Tree:
             _root_y_count=self._root_y_count,
             _root_y_probas=self._root_y_probas,
         )
-        self.right.grow(X_right, y_right)
+        self.right.grow(X_right, y_right, sample_weight=sample_weight_right)
         #
         ##
 

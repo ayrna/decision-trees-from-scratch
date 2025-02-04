@@ -1,5 +1,5 @@
-import numpy as np
 import decision_trees_from_scratch._tree_split_criteria as criterias
+import numpy as np
 from decision_trees_from_scratch._tree_ import Tree
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.multiclass import unique_labels
@@ -16,7 +16,8 @@ class DTC(ClassifierMixin, BaseEstimator):
         self.max_depth = max_depth
         self.random_state = random_state
 
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weight=None):
+        y = np.array(y)
         self.classes_ = unique_labels(y)
         self.n_classes_ = max(self.classes_) + 1
 
@@ -42,7 +43,7 @@ class DTC(ClassifierMixin, BaseEstimator):
             random_state=self.random_state,
         )
 
-        self._tree.grow(X, y)
+        self._tree.grow(X, y, sample_weight=sample_weight)
 
         return self
 

@@ -5,7 +5,7 @@ from decision_trees_from_scratch._tree_split_aux import moving_average
 #  and then test each one, returning the best in terms of the criterion
 #
 #
-def evaluate_feature(feature, target, root_target_probas, criterion, random_state):
+def evaluate_feature(feature, target, criterion, sample_weight, random_state):
     best_threshold = None
     best_criterion_value = None
 
@@ -13,17 +13,25 @@ def evaluate_feature(feature, target, root_target_probas, criterion, random_stat
         return best_threshold, best_criterion_value
 
     thresholds = moving_average(feature)
-    for i, Xf in enumerate(thresholds):
+    for Xf in thresholds:
         left_index = feature <= Xf
         left_target = target[left_index]
         right_target = target[~left_index]
+        if sample_weight is not None:
+            left_sw = sample_weight[left_index]
+            right_sw = sample_weight[~left_index]
+        else:
+            left_sw = None
+            right_sw = None
         if (len(left_target) == 0) or (len(right_target) == 0):
             continue
         criterion_value = criterion.compute(
-            target,
-            left_target,
-            right_target,
-            root_y_probas=root_target_probas,
+            y=target,
+            y_left=left_target,
+            y_right=right_target,
+            sw=sample_weight,
+            sw_left=left_sw,
+            sw_right=right_sw,
         )
 
         # results[i] = criterion_value
@@ -42,13 +50,13 @@ def evaluate_feature(feature, target, root_target_probas, criterion, random_stat
 #   2. Get the best feature, returning its name, values, threshold and criterion value obtained
 #
 #
-def split(X, y, root_y_probas, criterion, random_state):
+def split(X, y, criterion, sample_weight, random_state):
     best = None
 
     # 1.
     #
     for f_name, f_vals in X.items():
-        threshold, criterion_val = evaluate_feature(f_vals, y, root_y_probas, criterion, random_state)
+        threshold, criterion_val = evaluate_feature(f_vals, y, criterion, sample_weight, random_state)
 
         if threshold is None:
             continue

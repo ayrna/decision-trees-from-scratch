@@ -10,22 +10,19 @@ class InformationGain(SplitCriterion):
     The Information Gain criterion is a measure of the reduction in entropy that results from splitting a node.
     """
 
-    def _node_impurity(self, y):
-        cd = ClassDistribution(y, self.n_classes)
+    def _node_impurity(self, y, sample_weight):
+        cd = ClassDistribution(y, self.n_classes, sample_weight=sample_weight)
         entropy = -np.sum(cd.get_non_zero_probas() * np.log2(cd.get_non_zero_probas()))
         return entropy
 
-    def _compute(self, y, left_y, right_y, **kwargs):
-        n_parent = len(y)
-        n_left = len(left_y)
-        n_right = len(right_y)
+    def _compute(self, y, y_left, y_right, sw, sw_left, sw_right, **kwargs):
+        entropy_parent = self.node_impurity(y, sample_weight=sw)
+        entropy_left = self.node_impurity(y_left, sample_weight=sw_left)
+        entropy_right = self.node_impurity(y_right, sample_weight=sw_right)
 
-        entropy_parent = self.node_impurity(y)
-        entropy_left = self.node_impurity(left_y)
-        entropy_right = self.node_impurity(right_y)
+        weight_node_left, weight_node_right = self._compute_node_weights(y, y_left, y_right, sw, sw_left, sw_right)
 
-        split_entropy = ((n_left / n_parent) * entropy_left) + ((n_right / n_parent) * entropy_right)
-
+        split_entropy = (weight_node_left * entropy_left) + (weight_node_right * entropy_right)
         return entropy_parent - split_entropy
 
 
@@ -37,24 +34,23 @@ class Gini(SplitCriterion):
     squared probabilities of each class.
     """
 
-    def _node_impurity(self, y):
-        cd = ClassDistribution(y, self.n_classes)
+    def _node_impurity(self, y, sample_weight):
+        cd = ClassDistribution(y, self.n_classes, sample_weight=sample_weight)
         gini = 1 - np.sum(cd.get_probas() ** 2)
         return gini
 
-    def _compute(self, y, left_y, right_y, **kwargs):
-        cd_parent = ClassDistribution(y, self.n_classes)
-        cd_left = ClassDistribution(left_y, self.n_classes)
-        cd_right = ClassDistribution(right_y, self.n_classes)
+    def _compute(self, y, y_left, y_right, sw, sw_left, sw_right, **kwargs):
+        cd_parent = ClassDistribution(y, self.n_classes, sample_weight=sw)
+        cd_left = ClassDistribution(y_left, self.n_classes, sample_weight=sw_left)
+        cd_right = ClassDistribution(y_right, self.n_classes, sample_weight=sw_right)
 
         gini_parent = 1 - np.sum(cd_parent.get_probas() ** 2)
         gini_left = 1 - np.sum(cd_left.get_probas() ** 2)
         gini_right = 1 - np.sum(cd_right.get_probas() ** 2)
 
-        PL = len(left_y) / len(y)
-        PR = len(right_y) / len(y)
+        weight_node_left, weight_node_right = self._compute_node_weights(y, y_left, y_right, sw, sw_left, sw_right)
 
-        return gini_parent - (PL * gini_left) - (PR * gini_right)
+        return gini_parent - (weight_node_left * gini_left) - (weight_node_right * gini_right)
 
 
 class OrdinalGini(SplitCriterion):
@@ -68,23 +64,22 @@ class OrdinalGini(SplitCriterion):
     [1] Raffaella Piccarreta. 2007. A new impurity measure for classification trees based on the Gini index.
     """
 
-    def _node_impurity(self, y):
-        cd = ClassDistribution(y, self.n_classes)
+    def _node_impurity(self, y, sample_weight):
+        cd = ClassDistribution(y, self.n_classes, sample_weight=sample_weight)
         cumprobas = cd.get_cumprobas()
         ogini = 0
         for i in range(len(cumprobas)):
             ogini += cumprobas[i] * (1 - cumprobas[i])
         return ogini
 
-    def _compute(self, y, left_y, right_y, **kwargs):
-        ogini_parent = self.node_impurity(y)
-        ogini_left = self.node_impurity(left_y)
-        ogini_right = self.node_impurity(right_y)
+    def _compute(self, y, y_left, y_right, sw, sw_left, sw_right, **kwargs):
+        ogini_parent = self.node_impurity(y, sample_weight=sw)
+        ogini_left = self.node_impurity(y_left, sample_weight=sw_left)
+        ogini_right = self.node_impurity(y_right, sample_weight=sw_right)
 
-        PL = len(left_y) / len(y)
-        PR = len(right_y) / len(y)
+        weight_node_left, weight_node_right = self._compute_node_weights(y, y_left, y_right, sw, sw_left, sw_right)
 
-        return ogini_parent - (PL * ogini_left) - (PR * ogini_right)
+        return ogini_parent - (weight_node_left * ogini_left) - (weight_node_right * ogini_right)
 
 
 class WeightedInformationGain(SplitCriterion):
@@ -109,8 +104,8 @@ class WeightedInformationGain(SplitCriterion):
         super().__init__(n_classes)
         self.power = power
 
-    def _node_impurity(self, y, weights):
-        cd = ClassDistribution(y, self.n_classes)
+    def _node_impurity(self, y, weights, sample_weight):
+        cd = ClassDistribution(y, self.n_classes, sample_weight=sample_weight)
         w = np.array([weights[u] for u in cd.get_non_zero_labels()])
         entropy = -np.sum(w * cd.get_non_zero_probas() * np.log2(cd.get_non_zero_probas()))
         return entropy
@@ -129,22 +124,20 @@ class WeightedInformationGain(SplitCriterion):
         }
         return weights
 
-    def _compute(self, y, left_y, right_y, **kwargs):
+    def _compute(self, y, y_left, y_right, sw, sw_left, sw_right, **kwargs):
         unique_y = np.unique(y)
 
         weights_parent = self._get_weights(y, unique_classes=unique_y)
-        weights_left = self._get_weights(left_y, unique_classes=unique_y)
-        weights_right = self._get_weights(right_y, unique_classes=unique_y)
+        weights_left = self._get_weights(y_left, unique_classes=unique_y)
+        weights_right = self._get_weights(y_right, unique_classes=unique_y)
 
-        entropy_parent = self.node_impurity(y, weights=weights_parent)
-        entropy_left = self.node_impurity(left_y, weights=weights_left)
-        entropy_right = self.node_impurity(right_y, weights=weights_right)
+        entropy_parent = self.node_impurity(y, weights=weights_parent, sample_weight=sw)
+        entropy_left = self.node_impurity(y_left, weights=weights_left, sample_weight=sw_left)
+        entropy_right = self.node_impurity(y_right, weights=weights_right, sample_weight=sw_right)
 
-        n_parent = len(y)
-        n_left = len(left_y)
-        n_right = len(right_y)
+        weight_node_left, weight_node_right = self._compute_node_weights(y, y_left, y_right, sw, sw_left, sw_right)
 
-        split_entropy = ((n_left / n_parent) * entropy_left) + ((n_right / n_parent) * entropy_right)
+        split_entropy = (weight_node_left * entropy_left) + (weight_node_right * entropy_right)
 
         return entropy_parent - split_entropy
 
@@ -161,8 +154,8 @@ class RankingImpurity(SplitCriterion):
     IEEE Intell. Informatics Bull., 7(1), 22-26.
     """
 
-    def _node_impurity(self, y):
-        cd = ClassDistribution(y, self.n_classes)
+    def _node_impurity(self, y, sample_weight):
+        cd = ClassDistribution(y, self.n_classes, sample_weight=sample_weight)
         ri = 0
         for j in range(self.n_classes):
             for i in range(j):
@@ -170,9 +163,9 @@ class RankingImpurity(SplitCriterion):
                 ri += (cd.labels[j] - cd.labels[i]) * cd.counts[i] * cd.counts[j]
         return ri
 
-    def _compute(self, y, left_y, right_y, **kwargs):
-        ri_parent = self.node_impurity(y)
-        ri_left = self.node_impurity(left_y)
-        ri_right = self.node_impurity(right_y)
+    def _compute(self, y, y_left, y_right, sw, sw_left, sw_right, **kwargs):
+        ri_parent = self.node_impurity(y, sample_weight=sw)
+        ri_left = self.node_impurity(y_left, sample_weight=sw_left)
+        ri_right = self.node_impurity(y_right, sample_weight=sw_right)
 
         return ri_parent - ri_left - ri_right

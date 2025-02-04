@@ -1,5 +1,5 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from decision_trees_from_scratch._tree_ import Tree
 from decision_trees_from_scratch._tree_split_criteria import OrdinalGini
 
@@ -32,7 +32,7 @@ def test_node_split_tracking_of_root_y_info():
     )
     y = pd.Series([0, 0, 0, 2, 2, 1, 3, 1, 1, 1])
 
-    tree.grow(X, y)
+    tree.grow(X, y, sample_weight=None)
 
     assert np.allclose(tree._root_y_classes, np.array([0, 1, 2, 3]))
     assert np.allclose(tree.left._root_y_classes, np.array([0, 1, 2, 3]))
@@ -43,3 +43,6 @@ def test_node_split_tracking_of_root_y_info():
     assert tree._root_y_probas == {0: 0.3, 1: 0.4, 2: 0.2, 3: 0.1}
     assert tree.left._root_y_probas == {0: 0.3, 1: 0.4, 2: 0.2, 3: 0.1}
     assert tree.right._root_y_probas == {0: 0.3, 1: 0.4, 2: 0.2, 3: 0.1}
+
+
+test_node_split_tracking_of_root_y_info()
