@@ -11,7 +11,7 @@ from sklearn.utils import compute_sample_weight
 
 def test_with_sklearn():
     data = pd.read_csv(
-        os.path.join(decision_trees_from_scratch.__path__[0], "tests/test_data_exercise_tracking.csv")
+        os.path.join(decision_trees_from_scratch.__path__[0], "tests/datatest_exercise_tracking.csv")
     )
     X = data.drop(columns=["y"])
     y = data["y"]
