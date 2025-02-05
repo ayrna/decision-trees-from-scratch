@@ -37,13 +37,19 @@ def test_weighted_information_gain():
     target = generate_array(counts_target)
 
     assert np.isclose(
-        WeightedInformationGain(n_classes=4, power=1).compute(target, left, right), 0.0770388176848689, atol=1e-8
+        WeightedInformationGain(n_classes=4, power=1).compute(target, left, right)[0],
+        0.0770388176848689,
+        atol=1e-8,
     )
     assert np.isclose(
-        WeightedInformationGain(n_classes=4, power=2).compute(target, left, right), 0.0408551950243498, atol=1e-8
+        WeightedInformationGain(n_classes=4, power=2).compute(target, left, right)[0],
+        0.0408551950243498,
+        atol=1e-8,
     )
     assert np.isclose(
-        WeightedInformationGain(n_classes=4, power=4).compute(target, left, right), 0.0140813937855637, atol=1e-8
+        WeightedInformationGain(n_classes=4, power=4).compute(target, left, right)[0],
+        0.0140813937855637,
+        atol=1e-8,
     )
 
     ## Test 2
@@ -73,13 +79,19 @@ def test_weighted_information_gain():
     target = generate_array(counts_target)
 
     assert np.isclose(
-        WeightedInformationGain(n_classes=4, power=1).compute(target, left, right), 0.0050607132246584, atol=1e-8
+        WeightedInformationGain(n_classes=4, power=1).compute(target, left, right)[0],
+        0.0050607132246584,
+        atol=1e-8,
     )
     assert np.isclose(
-        WeightedInformationGain(n_classes=4, power=2).compute(target, left, right), 0.00656088265670002, atol=1e-8
+        WeightedInformationGain(n_classes=4, power=2).compute(target, left, right)[0],
+        0.00656088265670002,
+        atol=1e-8,
     )
     assert np.isclose(
-        WeightedInformationGain(n_classes=4, power=4).compute(target, left, right), 0.0102086507681084, atol=1e-8
+        WeightedInformationGain(n_classes=4, power=4).compute(target, left, right)[0],
+        0.0102086507681084,
+        atol=1e-8,
     )
 
 
@@ -117,19 +129,19 @@ def test_weighted_information_gain_with_sw():
     sw_right = compute_sample_weight(class_weights, right)
 
     assert np.isclose(
-        WeightedInformationGain(n_classes=4).compute(target, left, right, sw, sw_left, sw_right),
+        WeightedInformationGain(n_classes=4).compute(target, left, right, sw, sw_left, sw_right)[0],
         0.0508630423985624,
         atol=1e-8,
         rtol=1e-8,
     )
     assert np.isclose(
-        WeightedInformationGain(n_classes=4, power=2).compute(target, left, right, sw, sw_left, sw_right),
+        WeightedInformationGain(n_classes=4, power=2).compute(target, left, right, sw, sw_left, sw_right)[0],
         0.0198996021329389,
         atol=1e-8,
         rtol=1e-8,
     )
     assert np.isclose(
-        WeightedInformationGain(n_classes=4, power=4).compute(target, left, right, sw, sw_left, sw_right),
+        WeightedInformationGain(n_classes=4, power=4).compute(target, left, right, sw, sw_left, sw_right)[0],
         -0.00156431527911566,
         atol=1e-8,
         rtol=1e-8,
@@ -167,19 +179,19 @@ def test_weighted_information_gain_with_sw():
     sw_right = compute_sample_weight(class_weights, right)
 
     assert np.isclose(
-        WeightedInformationGain(n_classes=4).compute(target, left, right, sw, sw_left, sw_right),
+        WeightedInformationGain(n_classes=4).compute(target, left, right, sw, sw_left, sw_right)[0],
         -0.00523773438603231,
         atol=1e-8,
         rtol=1e-8,
     )
     assert np.isclose(
-        WeightedInformationGain(n_classes=4, power=2).compute(target, left, right, sw, sw_left, sw_right),
+        WeightedInformationGain(n_classes=4, power=2).compute(target, left, right, sw, sw_left, sw_right)[0],
         0.00107539844235027,
         atol=1e-8,
         rtol=1e-8,
     )
     assert np.isclose(
-        WeightedInformationGain(n_classes=4, power=4).compute(target, left, right, sw, sw_left, sw_right),
+        WeightedInformationGain(n_classes=4, power=4).compute(target, left, right, sw, sw_left, sw_right)[0],
         0.0227253161530324,
         atol=1e-8,
         rtol=1e-8,

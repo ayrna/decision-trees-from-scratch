@@ -13,6 +13,7 @@ def evaluate_feature(feature, target, criterion, sample_weight, random_state):
         return best_threshold, best_criterion_value
 
     thresholds = moving_average(feature)
+    node_impurity = None
     for Xf in thresholds:
         left_index = feature <= Xf
         left_target = target[left_index]
@@ -25,7 +26,7 @@ def evaluate_feature(feature, target, criterion, sample_weight, random_state):
             right_sw = None
         if (len(left_target) == 0) or (len(right_target) == 0):
             continue
-        criterion_value = criterion.compute(
+        criterion_value, node_impurity = criterion.compute(
             y=target,
             y_left=left_target,
             y_right=right_target,
@@ -42,7 +43,7 @@ def evaluate_feature(feature, target, criterion, sample_weight, random_state):
             best_threshold = Xf
             best_criterion_value = criterion_value
 
-    return best_threshold, best_criterion_value
+    return best_threshold, best_criterion_value, node_impurity
 
 
 ## Get best split parameters based on given data and criterion, steps:
@@ -56,7 +57,9 @@ def split(X, y, criterion, sample_weight, random_state):
     # 1.
     #
     for f_name, f_vals in X.items():
-        threshold, criterion_val = evaluate_feature(f_vals, y, criterion, sample_weight, random_state)
+        threshold, criterion_val, node_impurity = evaluate_feature(
+            f_vals, y, criterion, sample_weight, random_state
+        )
 
         if threshold is None:
             continue
@@ -68,4 +71,7 @@ def split(X, y, criterion, sample_weight, random_state):
         elif criterion_val > best[3]:
             best = [f_name, f_vals, threshold, criterion_val]
     #
-    return best
+    print("* Best split feature =", best[0])
+    print("* Best split threshold =", best[2])
+    print("* Best split criterion_val =", best[3])
+    return best, node_impurity

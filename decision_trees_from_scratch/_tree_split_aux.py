@@ -1,6 +1,17 @@
 import numpy as np
 
 
+def get_class_counts(y, classes, sample_weight):
+    counts = np.zeros(len(classes))
+    if sample_weight is None:
+        for i, c in enumerate(classes):
+            counts[i] = len(np.where(y == c)[0])
+    else:
+        for i, c in enumerate(classes):
+            counts[i] = np.sum(sample_weight[np.where(y == c)[0]])
+    return counts
+
+
 ## Function to compute the moving average to work with numeric features
 #
 def moving_average(feature_values):

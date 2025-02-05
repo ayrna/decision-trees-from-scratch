@@ -9,15 +9,6 @@ def generate_array(counts):
 
 
 def test_ranking_impurity():
-
-    root_counts = {
-        0: 345,
-        1: 467,
-        2: 290,
-        3: 172,
-    }
-    root_target = generate_array(root_counts)
-
     ## Test 1
 
     left_counts = {
@@ -44,12 +35,7 @@ def test_ranking_impurity():
     }
     target = generate_array(counts_target)
 
-    criterion_val = RankingImpurity(n_classes=4).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
+    criterion_val, parent_impurity = RankingImpurity(n_classes=4).compute(target, left, right)
 
     assert np.isclose(criterion_val, 11326, atol=1e-8, rtol=1e-8)
 
@@ -79,12 +65,7 @@ def test_ranking_impurity():
     }
     target = generate_array(counts_target)
 
-    criterion_val = RankingImpurity(n_classes=4).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
+    criterion_val, parent_impurity = RankingImpurity(n_classes=4).compute(target, left, right)
 
     assert np.isclose(criterion_val, 19136, atol=1e-8, rtol=1e-8)
 
@@ -114,26 +95,12 @@ def test_ranking_impurity():
     }
     target = generate_array(counts_target)
 
-    criterion_val = RankingImpurity(n_classes=4).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
+    criterion_val, parent_impurity = RankingImpurity(n_classes=4).compute(target, left, right)
 
     assert np.isclose(criterion_val, 20390, atol=1e-8, rtol=1e-8)
 
 
 def test_ranking_impurity_with_sw():
-
-    root_counts = {
-        0: 345,
-        1: 467,
-        2: 290,
-        3: 172,
-    }
-    root_target = generate_array(root_counts)
-
     ## Test 1
 
     left_counts = {
@@ -165,7 +132,9 @@ def test_ranking_impurity_with_sw():
     sw_left = compute_sample_weight(class_weights, left)
     sw_right = compute_sample_weight(class_weights, right)
 
-    criterion_val = RankingImpurity(n_classes=4).compute(target, left, right, sw, sw_left, sw_right)
+    criterion_val, parent_impurity = RankingImpurity(n_classes=4).compute(
+        target, left, right, sw, sw_left, sw_right
+    )
 
     assert np.isclose(criterion_val, 14742.016, atol=1e-8, rtol=1e-8)
 
@@ -200,7 +169,9 @@ def test_ranking_impurity_with_sw():
     sw_left = compute_sample_weight(class_weights, left)
     sw_right = compute_sample_weight(class_weights, right)
 
-    criterion_val = RankingImpurity(n_classes=4).compute(target, left, right, sw, sw_left, sw_right)
+    criterion_val, parent_impurity = RankingImpurity(n_classes=4).compute(
+        target, left, right, sw, sw_left, sw_right
+    )
 
     assert np.isclose(criterion_val, 15249.177, atol=1e-8, rtol=1e-8)
 
@@ -235,6 +206,8 @@ def test_ranking_impurity_with_sw():
     sw_left = compute_sample_weight(class_weights, left)
     sw_right = compute_sample_weight(class_weights, right)
 
-    criterion_val = RankingImpurity(n_classes=4).compute(target, left, right, sw, sw_left, sw_right)
+    criterion_val, parent_impurity = RankingImpurity(n_classes=4).compute(
+        target, left, right, sw, sw_left, sw_right
+    )
 
     assert np.isclose(criterion_val, 54870.4702, atol=1e-8, rtol=1e-8)

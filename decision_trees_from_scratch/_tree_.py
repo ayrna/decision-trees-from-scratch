@@ -1,5 +1,6 @@
 import numpy as np
 from decision_trees_from_scratch._tree_split_ import split
+from decision_trees_from_scratch._tree_split_aux import get_class_counts
 
 
 class Tree:
@@ -48,13 +49,12 @@ class Tree:
         #
         if self._root_y_classes is None:
             # We are in the root node
-            y = y.to_numpy().astype(int)
-            self._root_y_classes, self._root_y_count = np.unique(y, return_counts=True)
+            y = y.astype(int)
+            self._root_y_classes = np.unique(y)
+            self._root_y_count = get_class_counts(y, self._root_y_classes, sample_weight)
             self._root_y_probas = {c: p for c, p in zip(self._root_y_classes, self._root_y_count / len(y))}
         #
-        self.node_y_count = np.zeros(len(self._root_y_classes))
-        for i, c in enumerate(self._root_y_classes):
-            self.node_y_count[i] = len(np.where(y == c)[0])
+        self.node_y_count = get_class_counts(y, self._root_y_classes, sample_weight)
         self.node_y = y
         ##
 
@@ -66,7 +66,7 @@ class Tree:
             return
         #
         if not self.fitted:
-            split_result = split(
+            split_result, node_impurity = split(
                 X=X,
                 y=y,
                 criterion=self.criterion,
@@ -83,6 +83,7 @@ class Tree:
                 self.feature = best_feature_name
                 self.threshold = best_threshold
                 self.criterion_val = criterion_val
+            print("Node impurity =", node_impurity)
         ##
 
         ## Split the data and call recursively to child nodes

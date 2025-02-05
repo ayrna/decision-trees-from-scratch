@@ -23,7 +23,7 @@ class InformationGain(SplitCriterion):
         weight_node_left, weight_node_right = self._compute_node_weights(y, y_left, y_right, sw, sw_left, sw_right)
 
         split_entropy = (weight_node_left * entropy_left) + (weight_node_right * entropy_right)
-        return entropy_parent - split_entropy
+        return (entropy_parent - split_entropy, entropy_parent)
 
 
 class Gini(SplitCriterion):
@@ -50,7 +50,7 @@ class Gini(SplitCriterion):
 
         weight_node_left, weight_node_right = self._compute_node_weights(y, y_left, y_right, sw, sw_left, sw_right)
 
-        return gini_parent - (weight_node_left * gini_left) - (weight_node_right * gini_right)
+        return (gini_parent - (weight_node_left * gini_left) - (weight_node_right * gini_right), gini_parent)
 
 
 class OrdinalGini(SplitCriterion):
@@ -79,7 +79,7 @@ class OrdinalGini(SplitCriterion):
 
         weight_node_left, weight_node_right = self._compute_node_weights(y, y_left, y_right, sw, sw_left, sw_right)
 
-        return ogini_parent - (weight_node_left * ogini_left) - (weight_node_right * ogini_right)
+        return (ogini_parent - (weight_node_left * ogini_left) - (weight_node_right * ogini_right), ogini_parent)
 
 
 class WeightedInformationGain(SplitCriterion):
@@ -139,7 +139,7 @@ class WeightedInformationGain(SplitCriterion):
 
         split_entropy = (weight_node_left * entropy_left) + (weight_node_right * entropy_right)
 
-        return entropy_parent - split_entropy
+        return (entropy_parent - split_entropy, entropy_parent)
 
 
 class RankingImpurity(SplitCriterion):
@@ -168,4 +168,4 @@ class RankingImpurity(SplitCriterion):
         ri_left = self.node_impurity(y_left, sample_weight=sw_left)
         ri_right = self.node_impurity(y_right, sample_weight=sw_right)
 
-        return ri_parent - ri_left - ri_right
+        return (ri_parent - ri_left - ri_right, ri_parent)

@@ -36,7 +36,7 @@ def test_information_gain():
     }
     target = generate_array(counts_target)
 
-    criterion_val = InformationGain(n_classes=4).compute(target, left, right, sample_weight=None)
+    criterion_val, parent_impurity = InformationGain(n_classes=4).compute(target, left, right, sample_weight=None)
 
     assert np.isclose(criterion_val, 0.783722817494008, atol=1e-8, rtol=1e-8)
 
@@ -66,7 +66,7 @@ def test_information_gain():
     }
     target = generate_array(counts_target)
 
-    criterion_val = InformationGain(n_classes=4).compute(
+    criterion_val, parent_impurity = InformationGain(n_classes=4).compute(
         target,
         left,
         right,
@@ -106,7 +106,7 @@ def test_information_gain_sample_weight():
     sw_left = compute_sample_weight(class_weights, left)
     sw_right = compute_sample_weight(class_weights, right)
 
-    criterion_val = InformationGain(n_classes=4).compute(
+    criterion_val, parent_impurity = InformationGain(n_classes=4).compute(
         target, left, right, sw=sw, sw_left=sw_left, sw_right=sw_right
     )
 
@@ -141,7 +141,7 @@ def test_information_gain_sample_weight():
     sw_left = compute_sample_weight(class_weights, left)
     sw_right = compute_sample_weight(class_weights, right)
 
-    criterion_val = InformationGain(n_classes=4).compute(
+    criterion_val, parent_impurity = InformationGain(n_classes=4).compute(
         target, left, right, sw=sw, sw_left=sw_left, sw_right=sw_right
     )
 

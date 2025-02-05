@@ -9,15 +9,6 @@ def generate_array(counts):
 
 
 def test_ordinal_gini():
-
-    root_counts = {
-        0: 245,
-        1: 890,
-        2: 112,
-        3: 476,
-    }
-    root_target = generate_array(root_counts)
-
     ## Test 1
 
     left_counts = {
@@ -44,12 +35,7 @@ def test_ordinal_gini():
     }
     target = generate_array(counts_target)
 
-    criterion_val_p1 = OrdinalGini(n_classes=4).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
+    criterion_val_p1, parent_impurity = OrdinalGini(n_classes=4).compute(target, left, right)
 
     assert np.isclose(criterion_val_p1, 0.214248054378297, atol=1e-8, rtol=1e-8)
 
@@ -79,25 +65,12 @@ def test_ordinal_gini():
     }
     target = generate_array(counts_target)
 
-    criterion_val_p1 = OrdinalGini(n_classes=4).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
+    criterion_val_p1, parent_impurity = OrdinalGini(n_classes=4).compute(target, left, right)
 
     assert np.isclose(criterion_val_p1, 0.00304927378597967, atol=1e-8, rtol=1e-8)
 
 
 def test_ordinal_gini_with_sw():
-
-    root_counts = {
-        0: 245,
-        1: 890,
-        2: 112,
-        3: 476,
-    }
-
     ## Test 1
 
     left_counts = {
@@ -129,7 +102,9 @@ def test_ordinal_gini_with_sw():
     sw_left = compute_sample_weight(class_weights, left)
     sw_right = compute_sample_weight(class_weights, right)
 
-    criterion_val_p1 = OrdinalGini(n_classes=4).compute(target, left, right, sw, sw_left, sw_right)
+    criterion_val_p1, parent_impurity = OrdinalGini(n_classes=4).compute(
+        target, left, right, sw, sw_left, sw_right
+    )
 
     assert np.isclose(criterion_val_p1, 0.133842568785121, atol=1e-8, rtol=1e-8)
 
@@ -164,6 +139,8 @@ def test_ordinal_gini_with_sw():
     sw_left = compute_sample_weight(class_weights, left)
     sw_right = compute_sample_weight(class_weights, right)
 
-    criterion_val_p1 = OrdinalGini(n_classes=4).compute(target, left, right, sw, sw_left, sw_right)
+    criterion_val_p1, parent_impurity = OrdinalGini(n_classes=4).compute(
+        target, left, right, sw, sw_left, sw_right
+    )
 
     assert np.isclose(criterion_val_p1, 0.00101356013193128, atol=1e-8, rtol=1e-8)

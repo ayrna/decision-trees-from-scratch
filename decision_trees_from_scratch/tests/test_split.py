@@ -43,6 +43,3 @@ def test_node_split_tracking_of_root_y_info():
     assert tree._root_y_probas == {0: 0.3, 1: 0.4, 2: 0.2, 3: 0.1}
     assert tree.left._root_y_probas == {0: 0.3, 1: 0.4, 2: 0.2, 3: 0.1}
     assert tree.right._root_y_probas == {0: 0.3, 1: 0.4, 2: 0.2, 3: 0.1}
-
-
-test_node_split_tracking_of_root_y_info()

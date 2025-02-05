@@ -9,15 +9,6 @@ def generate_array(counts):
 
 
 def test_gini():
-
-    root_counts = {
-        0: 245,
-        1: 890,
-        2: 112,
-        3: 476,
-    }
-    root_target = generate_array(root_counts)
-
     ## Test 1
 
     left_counts = {
@@ -44,12 +35,7 @@ def test_gini():
     }
     target = generate_array(counts_target)
 
-    criterion_val_p1 = Gini(n_classes=4).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
+    criterion_val_p1, parent_impurity = Gini(n_classes=4).compute(target, left, right)
 
     assert np.isclose(criterion_val_p1, 0.388493145987579, atol=1e-8, rtol=1e-8)
 
@@ -79,25 +65,12 @@ def test_gini():
     }
     target = generate_array(counts_target)
 
-    criterion_val_p1 = Gini(n_classes=4).compute(
-        target,
-        left,
-        right,
-        root_y_probas={l: p / len(root_target) for l, p in root_counts.items()},
-    )
+    criterion_val_p1, parent_impurity = Gini(n_classes=4).compute(target, left, right)
 
     assert np.isclose(criterion_val_p1, 0.00339580389807886, atol=1e-8, rtol=1e-8)
 
 
 def test_gini_with_cw():
-
-    root_counts = {
-        0: 245,
-        1: 890,
-        2: 112,
-        3: 476,
-    }
-    root_target = generate_array(root_counts)
 
     ## Test 1
 
@@ -130,7 +103,9 @@ def test_gini_with_cw():
     sw_left = compute_sample_weight(class_weights, left)
     sw_right = compute_sample_weight(class_weights, right)
 
-    criterion_val_p1 = Gini(n_classes=4).compute(target, left, right, sw=sw, sw_left=sw_left, sw_right=sw_right)
+    criterion_val_p1, parent_impurity = Gini(n_classes=4).compute(
+        target, left, right, sw=sw, sw_left=sw_left, sw_right=sw_right
+    )
 
     assert np.isclose(criterion_val_p1, 0.263498971716037, atol=1e-8, rtol=1e-8)
 
@@ -164,6 +139,8 @@ def test_gini_with_cw():
     sw_left = compute_sample_weight(class_weights, left)
     sw_right = compute_sample_weight(class_weights, right)
 
-    criterion_val_p1 = Gini(n_classes=4).compute(target, left, right, sw=sw, sw_left=sw_left, sw_right=sw_right)
+    criterion_val_p1, parent_impurity = Gini(n_classes=4).compute(
+        target, left, right, sw=sw, sw_left=sw_left, sw_right=sw_right
+    )
 
     assert np.isclose(criterion_val_p1, 0.00325937379505328, atol=1e-8, rtol=1e-8)
